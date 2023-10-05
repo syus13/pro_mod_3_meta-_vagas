@@ -6,6 +6,8 @@ const UserSchema = new Schema({
     email: {type: String, required: true, unique:true}
 }, {timestamps:true})
 
-type IUser = InferSchemaType<typeof UserSchema>
+type TypeUser = InferSchemaType<typeof UserSchema>
 
 const User = model("User", UserSchema)
+
+export {User, TypeUser}

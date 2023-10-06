@@ -21,7 +21,15 @@ class UserRepository{
         catch(erro: any){
             return  CommonError.build(erro.message, 500)
         }
+    }
 
+    async create(data: TypeUser){
+        try{
+            return this.model.create(data)
+        }
+        catch(erro: any){
+            return CommonError.build(erro.message, 500)
+        }
     }
 
 }

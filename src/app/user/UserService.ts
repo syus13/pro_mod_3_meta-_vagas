@@ -1,9 +1,10 @@
 import {Crypt} from "../../utils/Crypt"
+import {UserRepository} from "../user/UserRepository"
 
 class UserService{
     constructor (private repository: UserRepository){}
     async create(data:any){
-        const userAlreadyExists = await this.repository.findByemail(data.email)
+        const userAlreadyExists = await this.repository.findByEmail(data.email)
         if(userAlreadyExists){
             return{
                 error: true,

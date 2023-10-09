@@ -1,5 +1,5 @@
 import {Crypt} from "../../utils/Crypt"
-import {UserRepository} from "../user/UserRepository"
+import { UserRepository } from "./UserRepository"
 
 class UserService{
     constructor (private repository: UserRepository){}

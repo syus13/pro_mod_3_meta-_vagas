@@ -22,12 +22,13 @@ class UserController{
 
     return res.status(STATUS_CODE.CREATED).json(user)
     }
+    
 
     async update(req: Request, res: Response){
         const { body, params: {id} } = req
         
-        const updateValidation = UpdateValidation.isValid(body)
-        if('error' in updateValidation){
+        const updateValidation = await UpdateValidation.isValid(body)
+        if(updateValidation && updateValidation.error){
             return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST))
         }
 

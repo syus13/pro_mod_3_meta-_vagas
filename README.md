@@ -55,6 +55,8 @@ citySearch{
 ## Dependencias
   npm install bcrypt cors express jsonwebtoken dotenv tsup tsx typescript vitest -D
 
-  npm install mongoose    yup 
+  npm install mongoose yup 
+
+  npx tsc --init 
 
 metaVagas  

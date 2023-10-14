@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { AuthValidation } from "../../utils/Validations/auhtValidation/AuthValidation";
+import { AuthValidation } from "../../utils/Validations/auth/AuthValidation";
 import { STATUS_CODE } from "../../utils/statusCode";
 import { CommonError } from "../../utils/CommonError";
 import { AuthService } from "./AuhtService";

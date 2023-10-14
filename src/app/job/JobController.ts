@@ -6,7 +6,7 @@ import { CommonError } from "../../utils/CommonError";
 class JobController {
   constructor(private service: any) {}
 
-  async create(req: Request, res: Response) {
+  async createJob(req: Request, res: Response) {
     const { body } = req;
 
     const bodyIsValid = await JobValidation.isValid(body);

@@ -29,9 +29,7 @@ class JobController {
     const { userId } = body;
     const filter = await this.service.filterJobs(userId, query)
     if ("error" in filter) {
-      return res
-        .status(STATUS_CODE.BAD_REQUEST)
-        .json(CommonError.build(filter.message, STATUS_CODE.BAD_REQUEST))
+      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(filter.message, STATUS_CODE.BAD_REQUEST))
     }
     return res.status(STATUS_CODE.OK).json(filter)
   }

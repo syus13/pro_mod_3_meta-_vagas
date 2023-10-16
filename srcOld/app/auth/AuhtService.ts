@@ -2,13 +2,14 @@ import { CommonError } from "../../utils/CommonError";
 import { STATUS_CODE } from "../../utils/statusCode";
 import {Crypt} from "../../utils/Crypt"
 import JWT from "jsonwebtoken"
+import { authDto } from "./authDto";
 
 
 class AuthService{
     constructor( private repository: any){}
     
     
-    async login (data: any){
+    async login (data: authDto){
         const userAlreadyExists = await this.repository.findByEmail(data.email)
         if(!userAlreadyExists){
             return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST)

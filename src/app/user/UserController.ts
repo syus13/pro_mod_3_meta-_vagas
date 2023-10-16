@@ -39,6 +39,33 @@ class UserController{
 
         return res.status(STATUS_CODE.OK).json(result)
    }
+
+   async markJobAsFavorite(req: Request, res: Response) {
+    const { userId, jobId } = req.body
+    const result = await this.service.markJobAsFavorite(userId, jobId);
+    if ('error' in result) {
+      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+    }
+    return res.status(STATUS_CODE.OK).json(result);
+  }
+
+  async getSearchHistory(req: Request, res: Response) {
+    const userId = req.query.userId as string | undefined; 
+    const page = req.query.page as string;
+    const perPage = req.query.perPage as string;
+  
+    if (userId === undefined) {
+      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build('ID invalid', STATUS_CODE.BAD_REQUEST));
+    }
+      const history = await this.service.getSearchHistory(userId, page, perPage);
+  if('error' in history){
+
+    return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(history.message, STATUS_CODE.BAD_REQUEST));
 }
+return res.status(STATUS_CODE.OK).json(history);
+}
+  
+   }
+
 
 export{UserController}

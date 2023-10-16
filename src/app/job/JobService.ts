@@ -41,7 +41,7 @@ class JobService {
 
       await this.userRepository.searchHistoryRecord(filters, jobAlreadyExists);
       return jobAlreadyExists;
-    } catch (error: any) {
+    } catch (erro: any) {
       return CommonError.build(
         "Não foi possível realizar a pesquisa, tente novamente mais tarde",
         STATUS_CODE.INTERNAL_SERVER_ERROR

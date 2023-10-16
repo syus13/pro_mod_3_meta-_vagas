@@ -1,7 +1,7 @@
-interface userDto {
+interface UserDTO {
     name: string;
-    password: string
+    password: string;
     email: string;
-  }
-  
-  export { userDto }
+}
+
+export { UserDTO };

@@ -34,9 +34,9 @@ class JobService {
       }
 
       if (filters.technology) {
-        const techCountAlready = await this.techSearchRepository.upsertTechCount(
-          filters
-        );
+       await this.techSearchRepository.upsertTechCount(
+          filters);
+       
       }
 
       await this.userRepository.searchHistoryRecord(filters, jobAlreadyExists);

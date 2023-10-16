@@ -1,5 +1,3 @@
-// JobRepository.ts
-
 import { Model } from "mongoose";
 import { TypeJob } from "./Job";
 import { CommonError } from "../../utils/CommonError";

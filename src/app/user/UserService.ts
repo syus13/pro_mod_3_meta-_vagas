@@ -49,7 +49,7 @@ async markJobAsFavorite(userId: string, jobId: string) {
       }
 
            if (!user.favoriteJobs.includes(jobId)) {
-        user.favoriteJobs.push(jobId); // Adicione a vaga à lista de favoritos
+        user.favoriteJobs.push(jobId); 
       }
 
       const result = await this.repository.update(userId, user);
@@ -86,6 +86,6 @@ async markJobAsFavorite(userId: string, jobId: string) {
   }
 
 
-}
+ }
 
 export{UserService}

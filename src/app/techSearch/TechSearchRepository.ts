@@ -81,6 +81,27 @@ class TechSearchRepository {
   async createSearchCount(technology: string, city: string) {
     return this.model.create({ technology, city, count: 1 });
   }
+
+  async searchTech(query: any, startIndex: number, perPage: number) {
+    try {
+      const { technology, city } = query;
+      const filter: any = {};
+
+      if (technology) {
+        filter.technology = technology;
+      }
+
+      if (city) {
+        filter.city = city;
+      }
+
+      const results = await this.model.find(filter).skip(startIndex).limit(perPage);
+      return results;
+    } catch (error: any) {
+      return CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }
 
 export { TechSearchRepository };

@@ -1,5 +1,3 @@
-// UserSearchHistoryModule.ts
-import { Router } from 'express';
 import { UserSearchHistoryController } from './UserSearchHistoryController';
 import { UserSearchHistoryService } from './UserSearchHistoryService';
 

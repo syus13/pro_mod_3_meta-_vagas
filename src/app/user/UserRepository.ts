@@ -4,15 +4,6 @@ import { CommonError, CommonErrorResponse } from "../../utils/CommonError";
 import { STATUS_CODE } from "../../utils/statusCode";
 
 
-// interface FindByEmailSuccessResponse {
-//     id: string;
-//     name: string;
-//     email: string;
-//     password: string;
-//     createdAt: string | Date ;
-//     updatedAt: string | Date;
-//   }
-
 class UserRepository{
     constructor(private model:Model<TypeUser>){}
 

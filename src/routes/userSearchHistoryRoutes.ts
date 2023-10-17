@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { UserSearchHistoryModule } from '../app/userHistory/UserSearchHistoryModule';
+
 const userSearchHistoryRoutes = Router();
 
-const userSearchHistoryroutes = Router
+
 const { controller } = UserSearchHistoryModule.getInstance();
 
 

@@ -64,6 +64,15 @@ class TechSearchService {
     }
   }
 
+  async searchTech(query: any, startIndex: number, perPage: number) {
+    try {
+      const results = await this.techSearchRepository.searchTech(query, startIndex, perPage);
+      return results;
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }
 
 export { TechSearchService };

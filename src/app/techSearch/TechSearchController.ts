@@ -59,6 +59,23 @@ async searchTechAndCity(req: Request, res: Response) {
   
   }
 }
+
+async getTechSearchResults(req: Request, res: Response) {
+  try {
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const perPage = req.query.perPage ? parseInt(req.query.perPage as string) : 10;
+    const startIndex = (page - 1) * perPage;
+
+    const results = await this.techSearchService.searchTech(req.query, startIndex, perPage);
+
+    return res.status(STATUS_CODE.OK).json(results);
+  } catch (error: any) {
+    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+      CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+    );
+  }
+}
+
 }
 
 export { TechSearchController };

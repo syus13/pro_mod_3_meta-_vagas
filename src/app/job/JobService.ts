@@ -1,6 +1,7 @@
 import { CommonError } from "../../utils/CommonError";
 import { STATUS_CODE } from "../../utils/statusCode";
 import { TypeJob } from "./Job";
+import { filterMapping } from "./filterMapping";
 
 class JobService {
   constructor(
@@ -9,11 +10,10 @@ class JobService {
     private userRepository: any
   ) {}
 
-
-  async createJob(data: TypeJob) {
+  async create(data: TypeJob) {
     try {
       return await this.repository.create(data);
-    } catch (error: any) {
+    } catch (erro: any) {
       return CommonError.build(
         "Error registering the job",
         STATUS_CODE.BAD_REQUEST
@@ -34,16 +34,55 @@ class JobService {
       }
 
       if (filters.technology) {
-       await this.techSearchRepository.upsertTechCount(
-          filters);
-       
+        await this.techSearchRepository.upsertTechCount(filters);
       }
 
-      await this.userRepository.searchHistoryRecord(filters, jobAlreadyExists);
-      return jobAlreadyExists;
+      const filteredJobs = await this.buildQuery(
+        filters,
+        startIndex,
+        itemsPerPage
+      );
+
+      await this.userRepository.searchRecord(filters, jobAlreadyExists);
+      return filteredJobs;
     } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private async buildQuery(
+    filters: any,
+    startIndex: number,
+    itemsPerPage: number
+  ) {
+    try {
+      const query = this.repository.model.find();
+
+      if (filters) {
+        Object.keys(filterMapping).forEach((filterField) => {
+          if (filters[filterField]) {
+            query
+              .where(filterMapping[filterField])
+              .equals(filters[filterField]);
+          }
+        });
+
+        query.skip(startIndex).limit(itemsPerPage);
+      }
+
+      const jobs = await query.exec();
+      return jobs;
+    } catch (erro: any) {
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async favoriteJob(userId: string, jobId: string) {
+    try {
+      return await this.repository.favoriteJob(userId, jobId);
+    } catch (error: any) {
       return CommonError.build(
-        "Não foi possível realizar a pesquisa, tente novamente mais tarde",
+        error.message,
         STATUS_CODE.INTERNAL_SERVER_ERROR
       );
     }

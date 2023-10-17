@@ -19,7 +19,7 @@ class AuthMiddleware {
     try {
       const secretKey = process.env.JWT_SECRET_KEY;
       JWT.verify(token, secretKey as string);
-    } catch (erro) {
+    } catch (erro: any) {
       return res.status(STATUS_CODE.NON_AUTHORIZED).json(CommonError.build(erro.message, STATUS_CODE.NON_AUTHORIZED));
     }
 

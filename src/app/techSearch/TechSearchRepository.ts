@@ -1,71 +1,86 @@
-import { Model, Document } from "mongoose";
-import { TypeTechSearch } from "./TechSearch";
+import { Model } from "mongoose";
+import { TechSearch, TypeTechSearch } from "./TechSearch";
 import { CommonError } from "../../utils/CommonError";
 import { STATUS_CODE } from "../../utils/statusCode";
+import { CitySearch } from "../citySearch/CitySearch";
 
 class TechSearchRepository {
-  constructor(
-    private model: Model<TypeTechSearch & Document>
-  ) {}
+  constructor(private model: Model<TypeTechSearch>) {}
 
-  async createTechSearch(techSearchData: TypeTechSearch) {
+  async findOne(query: any) {
     try {
-      const techSearch = new this.model(techSearchData);
-      const techSearchDoc = techSearch.toObject(); // Converte para documento do Mongoose
-      const savedTechSearch = new this.model(techSearchDoc);
-      await savedTechSearch.save();
-      return savedTechSearch;
+      return this.model.findOne(query);
     } catch (erro: any) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async findByTechnologyAndCity(technology: string, city: string) {
+  async create(data: TypeTechSearch) {
     try {
-      return await this.model.findOne({ technology, city });
+      return this.model.create(data);
     } catch (erro: any) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async updateTechSearch(techSearch: TypeTechSearch & Document) {
+  async find(query: any) {
     try {
-      return await techSearch.save(); 
+      return this.model.find(query);
     } catch (erro: any) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async findTopSearchedTechnologies(limit: number = 5) {
+  async sortAndLimit(query: any, sortField: string, limit: number) {
     try {
-      const technologies = await this.model.aggregate([
-        {
-          $group: {
-            _id: '$technology',
-            count: { $sum: '$count' },
-          },
-        },
-        { $sort: { count: -1 } },
-        { $limit: limit },
-      ]);
-
-      return technologies;
+      return query.sort({ [sortField]: -1 }).limit(limit);
     } catch (erro: any) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async findTopSearchedCities(technology: string, limit: number = 5) {
+  async getTopTechnologies(limit: number = 5) {
     try {
-      const cities = await this.model.find({ technology })
+      const topTechnologies = await this.model
+        .find({})
         .sort({ count: -1 })
         .limit(limit);
 
-      return cities;
+      return topTechnologies;
     } catch (erro: any) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getTopCitiesForMostSearchedTech(limit: number = 5) {
+    try {
+      const topCities = await this.model
+        .find({ technology: { $ne: "" } })
+        .sort({ count: -1 })
+        .limit(limit);
+
+      return topCities;
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getSearchCount(technology: string, city: string) {
+    const searchRecord = await this.model.findOne({ technology, city });
+
+    return searchRecord ? searchRecord.count : null;
+  }
+
+  async incrementSearchCount(technology: string, city: string) {
+    return this.model.findOneAndUpdate(
+      { technology, city },
+      { $inc: { count: 1 } }
+    );
+  }
+
+  async createSearchCount(technology: string, city: string) {
+    return this.model.create({ technology, city, count: 1 });
   }
 }
 
-export default TechSearchRepository;
+export { TechSearchRepository };

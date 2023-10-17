@@ -10,6 +10,7 @@ company: {type: String, required: true},
 description: {type: String, required: true},
 link: {type: String, required: true},
 technology: {type: String, required: true},
+favoritedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
 }, {timestamps: true})
 
 type TypeJob = InferSchemaType<typeof JobSchema>

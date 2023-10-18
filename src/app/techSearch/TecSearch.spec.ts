@@ -82,4 +82,5 @@ describe("TechSearchService", () => {
             expect(result).toStrictEqual(expectMock)
         }, 10000)
     })
+    
 })

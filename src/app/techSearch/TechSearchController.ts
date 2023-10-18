@@ -76,6 +76,18 @@ async getTechSearchResults(req: Request, res: Response) {
   }
 }
 
+async getTop5Technologies(req: Request, res: Response) {
+  try {
+    const topTechnologies = await this.techSearchService.getTop5Technologies();
+    return res.status(STATUS_CODE.OK).json(topTechnologies);
+  } catch (erro: any) {
+    return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+    );
+  }
+}
+
+
 }
 
 export { TechSearchController };

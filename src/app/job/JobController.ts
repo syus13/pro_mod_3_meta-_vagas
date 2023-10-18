@@ -29,7 +29,7 @@ class JobController {
 
 async filterJobs(req: Request, res: Response) {
   const filters = req.body;
-  const { page, perPage } = req.query; 
+  const {  page = '1', perPage = '10' } = req.query; 
 
   try {
     
@@ -48,12 +48,11 @@ async filterJobs(req: Request, res: Response) {
     }
 
     return res.status(STATUS_CODE.OK).json(jobs);
-  } catch (error: any) {
+  } catch (erro: any) {
     return res
       .status(STATUS_CODE.INTERNAL_SERVER_ERROR)
       .json(
-        CommonError.build(
-          "Server error",
+        CommonError.build(erro.message,
           STATUS_CODE.INTERNAL_SERVER_ERROR
         )
       );

@@ -26,4 +26,7 @@ techSearchRoutes.get(
   techSearchController.getTechSearchResults.bind(techSearchController)
 );
 
+techSearchRoutes.get('/top5', techSearchController.getTop5Technologies.bind(techSearchController));
+
+
 export { techSearchRoutes };

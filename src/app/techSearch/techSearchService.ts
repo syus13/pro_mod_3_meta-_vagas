@@ -73,42 +73,14 @@ class TechSearchService {
     }
   }
 
+  async getTop5Technologies() {
+    try {
+      return await this.techSearchRepository.getTopTechnologies(5);
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }
 
 export { TechSearchService };
-
-
-
-// import { CommonError } from '../../utils/CommonError';
-// import { STATUS_CODE } from '../../utils/statusCode';
-// import TechSearchRepository from './TechSearchRepository';
-
-// class TechSearchService {
-//   getTopTechnologies(limit: number) {
-//     throw new Error("Method not implemented.");
-//   }
-//   registerTechSearch(technology: any, city: any) {
-//     throw new Error("Method not implemented.");
-//   }
-//   constructor(private techSearchRepository: TechSearchRepository) {}
-
-//   async findTopSearchedTechnologies(limit: number = 5) {
-//     try {
-//       return await this.techSearchRepository.findTopSearchedTechnologies(limit);
-//     } catch (erro: any) {
-//     return CommonError.build(erro.message,STATUS_CODE.INTERNAL_SERVER_ERROR)
-//       }
-//     }
-  
-
-//   async findTopSearchedCities(technology: string, limit: number = 5) {
-//     try {
-//       return await this.techSearchRepository.findTopSearchedCities(technology, limit);
-//     } catch (erro: any) {
-//         return CommonError.build(erro.message,STATUS_CODE.INTERNAL_SERVER_ERROR)
-//           }
-//     }
-// }
-
-
-// export default TechSearchService;

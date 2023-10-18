@@ -97,8 +97,17 @@ class TechSearchRepository {
 
       const results = await this.model.find(filter).skip(startIndex).limit(perPage);
       return results;
-    } catch (error: any) {
-      return CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async searchTechAndCity(technology: string, city: string) {
+    try {
+      const record = await this.model.findOne({ technology, city });
+      return record ? record.count : 0;
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 

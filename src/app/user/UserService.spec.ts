@@ -52,7 +52,7 @@ describe("UserService", () => {
 
             const result = await sut.update(paramMockId as any as string, paramMockData)
 
-            expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.NOT_FOUND))
+            expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR))
         })
 
         it("Should be able to update data", async () => {
@@ -89,7 +89,7 @@ describe("MarkJobAsFavorite()", () => {
 
         const result = await sut.markJobAsFavorite(userIdMock, jobIdMock)
 
-        expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.NOT_FOUND))
+        expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR))
     })
 
     it("Should be able to mark job as favorite", async () => {

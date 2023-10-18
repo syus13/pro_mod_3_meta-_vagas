@@ -43,30 +43,30 @@ Atualizar Perfil do Usuário: PUT /users/:id
 Marcar Vaga como Favorita: PUT /users/:id
 Obter Histórico de Busca do Usuário: GET /users/searchHistory?userId=<userId>&page=<page>&perPage=<perPage>
 
-# Vagas
+## Vagas
 Criar uma nova vaga: POST /jobs
 Filtrar vagas: POST /jobs/filter
 Marcar vaga como favorita: POST /jobs/favorite/:id
 
-# Pesquisa de Tecnologia
+## Pesquisa de Tecnologia
 Registrar pesquisa de tecnologia: POST /techSearch/register
 Obter as principais tecnologias pesquisadas: GET /techSearch/topTechnologies
 Obter as principais cidades para a tecnologia mais pesquisada: GET /techSearch/topCitiesForMostSearchedTech
 Pesquisar tecnologia e cidade: GET /techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>
 Obter resultados de pesquisa de tecnologia: GET /techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>
 
-# Histórico de Pesquisa do Usuário
+## Histórico de Pesquisa do Usuário
 Adicionar histórico de pesquisa do usuário: POST /userSearchHistory/add
 Obter últimas pesquisas do usuário: GET /userSearchHistory/lastSearches/:userId
 
-# Pesquisa de Cidade
+## Pesquisa de Cidade
 Obter as 5 principais cidades: GET /citySearch/top5
 Obter as 5 principais cidades para a tecnologia mais pesquisada: GET /citySearch/top5
 
-# Paginação
+## Paginação
 A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta page e perPage para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=2&perPage=10. Isso retornaria os itens 11-20 dos resultados da pesquisa.
 
-# Testes
+## Testes
 Para executar os testes, use o seguinte comando:
 npm test
 

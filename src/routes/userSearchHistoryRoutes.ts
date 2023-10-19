@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { UserSearchHistoryModule } from '../app/userHistory/UserSearchHistoryModule';
+import { UserSearchHistoryModule } from '../app/userSearchHistory/UserSearchHistoryModule';
 
 const userSearchHistoryRoutes = Router();
 

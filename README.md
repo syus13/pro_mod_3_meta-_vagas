@@ -1,80 +1,68 @@
-# Projeto Meta Vagas
+Claro! Aqui está o arquivo README.md atualizado com um convite para os usuários testarem a API:
 
-Este projeto é uma API RESTful para pesquisa de empregos. Ele permite que os usuários se registrem, façam login, pesquisem vagas de emprego, marquem vagas como favoritas e vejam seu histórico de pesquisa.
+---
 
-## Pré-requisitos
+# 🚀 Meta Vagas API 🚀
 
-Antes de começar, certifique-se de ter o Node.js e o npm instalados em sua máquina.
+Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores vagas de emprego no universo da tecnologia! 🌌
 
-## Instalação
+## 🛠️ Instalação 🛠️
 
-1. Clone este repositório.
-   ```bash
-   git clone <url do repositório>
+1. Clone este repositório para o seu computador. É como fazer o download de um mapa estelar!
+2. Execute `npm install` para instalar as dependências. Isso é como abastecer sua nave espacial!
+3. Configure o arquivo `.env` com suas variáveis de ambiente. Isso é como ajustar as configurações do seu painel de controle!
+4. Execute `npm start` para iniciar o servidor. 3... 2... 1... Ignição!
 
-Navegue até a pasta do projeto.
+## 🌐 Rotas da API 🌐
 
-cd job-search
+### 👥 Usuários 👥
 
-Instale as dependências do projeto.
+- Registro de Usuário (POST): `http://localhost:3333/users`
+- Login do Usuário (POST): `http://localhost:3333/login`
+- Atualizar Perfil do Usuário (PUT): `http://localhost:3333/users/:id`
 
-npm install
+### 💼 Vagas 💼
 
-Crie um arquivo .env na raiz do projeto e adicione suas variáveis de ambiente.
+- Criar uma nova vaga (POST): `http://localhost:3333/jobs`
+- Filtrar vagas (POST): `http://localhost:3333/jobs/filter`
+- Marcar vaga como favorita (POST): `http://localhost:3333/jobs/favorite/:id`
 
-touch .env
+### 💻 Pesquisa de Tecnologia 💻
 
-Abra o arquivo .env e adicione suas variáveis de ambiente.
+- Registrar pesquisa de tecnologia (POST): `http://localhost:3333/techSearch/register`
+- Obter as principais tecnologias pesquisadas (GET): `http://localhost:3333/techSearch/topTechnologies`
+- Obter as principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3333/techSearch/topCitiesForMostSearchedTech`
+- Pesquisar tecnologia e cidade (GET): `http://localhost:3333/techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>`
+- Obter resultados de pesquisa de tecnologia (GET): `http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>`
+- Obter as 5 principais tecnologias pesquisadas (GET): `http://localhost:3333/techSearch/top5`
 
-DATABASE_URL=<url do banco de dados>
-JWT_SECRET_KEY=<chave secreta JWT>
+### 🏙️ Pesquisa de Cidade 🏙️
 
-Inicie o servidor.
+- Obter as 5 principais cidades (GET): `http://localhost:3333/citySearch/top5`
+- Obter as 5 principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3333/citySearch/top5cityAndTechnonogy`
 
-npm start
+## 📖 Paginação 📖
 
-Uso
-A API tem várias rotas que você pode usar para interagir com ela.
+A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta `page` e `perPage` para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para `http://localhost:3333/jobs/filter?page=2&perPage=10`. Isso retornaria os itens 11-20 dos resultados da pesquisa.
 
-## Usuários
-Registro de Usuário: POST /users
-Login do Usuário: POST /login
-Atualizar Perfil do Usuário: PUT /users/:id
-Marcar Vaga como Favorita: PUT /users/:id
-Obter Histórico de Busca do Usuário: GET /users/searchHistory?userId=<userId>&page=<page>&perPage=<perPage>
+## 📦 Dependências 📦
 
-## Vagas
-Criar uma nova vaga: POST /jobs
-Filtrar vagas: POST /jobs/filter
-Marcar vaga como favorita: POST /jobs/favorite/:id
+As seguintes dependências foram instaladas para este projeto:
 
-## Pesquisa de Tecnologia
-Registrar pesquisa de tecnologia: POST /techSearch/register
-Obter as principais tecnologias pesquisadas: GET /techSearch/topTechnologies
-Obter as principais cidades para a tecnologia mais pesquisada: GET /techSearch/topCitiesForMostSearchedTech
-Pesquisar tecnologia e cidade: GET /techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>
-Obter resultados de pesquisa de tecnologia: GET /techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>
+- bcrypt
+- cors
+- express
+- jsonwebtoken
+- dotenv
+- tsup
+- tsx
+- typescript
+- vitest
+- mongoose
+- yup
 
-## Histórico de Pesquisa do Usuário
-Adicionar histórico de pesquisa do usuário: POST /userSearchHistory/add
-Obter últimas pesquisas do usuário: GET /userSearchHistory/lastSearches/:userId
+## 👾 Teste a API! 👾
 
-## Pesquisa de Cidade
-Obter as 5 principais cidades: GET /citySearch/top5
-Obter as 5 principais cidades para a tecnologia mais pesquisada: GET /citySearch/top5cityAndTechnonogy
+Nós convidamos você a testar a nossa API! Sinta-se à vontade para fazer requisições e explorar todas as funcionalidades que temos a oferecer. Se você encontrar algum erro ou tiver alguma sugestão, por favor, nos avise!
 
-## Paginação
-A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta page e perPage para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=2&perPage=10. Isso retornaria os itens 11-20 dos resultados da pesquisa.
-
-## Testes
-Para executar os testes, use o seguinte comando:
-npm test
-
-Licença
-MIT
-
-
-Por favor, substitua `http://localhost:3333` pelo endereço e porta reais do seu servidor. Além disso, lembre-se de substituir os espaços reservados como `<token>`, `<userId>`, etc., pelos valores reais.
-
-Espero que isso ajude! Se você tiver mais perguntas ou precisar de mais ajuda, fique à vontade para perguntar.
 

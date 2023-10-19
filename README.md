@@ -1,4 +1,3 @@
-Claro! Aqui está o arquivo README.md atualizado com um convite para os usuários testarem a API:
 
 ---
 

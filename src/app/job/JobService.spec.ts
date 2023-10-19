@@ -41,7 +41,7 @@ describe("JobService", () => {
             const result = await sut.create(dataMock)
 
             expect(result).toStrictEqual(expectMock)
-        }, 10000) // Aumenta o tempo limite para 10 segundos
+        }) 
     })
 
     describe("filterJobs()", () => {
@@ -55,7 +55,7 @@ describe("JobService", () => {
             const result = await sut.filterJobs(filtersMock, startIndexMock, itemsPerPageMock)
 
             expect(expectMock).toStrictEqual(expectMock)
-        }, 10000) // Aumenta o tempo limite para 10 segundos
+        }) 
     })
 
     describe("favoriteJob()", () => {
@@ -68,6 +68,6 @@ describe("JobService", () => {
             const result = await sut.favoriteJob(userIdMock, jobIdMock)
 
             expect(result).toStrictEqual(expectMock)
-        }, 10000) // Aumenta o tempo limite para 10 segundos
+        }) 
     })
 })

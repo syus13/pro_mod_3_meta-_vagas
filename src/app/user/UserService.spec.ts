@@ -16,7 +16,7 @@ const sut = new UserService(repositoryMock)
 describe("UserService", () => {
     describe("Create()", () => {
         it("Should return error if user already exists", async () => {
-            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date(), favoritedJobs: []  }
+            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date()  }
             vi.spyOn(repositoryMock, "findByEmail").mockReturnValue({})
 
             const result = await sut.create(paramMock)
@@ -25,7 +25,7 @@ describe("UserService", () => {
         })
 
         it("Should be able create a new user", async () => {
-            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date(), favoritedJobs: [] }
+            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
             const expectMock = {
                 id: "1",
                 name: "Fulaninho",
@@ -33,7 +33,7 @@ describe("UserService", () => {
                 password: Crypt.encrypt("123456"),
                 createdAt: "2023-10-16T15:37:13.228Z",
                 updatedAt: "2023-10-16T15:37:13.228Z",
-                favoritedJobs: paramMock.favoritedJobs,
+               
             }
             vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(false)
             vi.spyOn(repositoryMock, "create").mockReturnValue(expectMock)
@@ -47,7 +47,7 @@ describe("UserService", () => {
     describe("Update", () => {
         it("Should return error if user not exists", async () => {
             const paramMockId = { id: "1" }
-            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date(), favoritedJobs: [] }
+            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
             vi.spyOn(repositoryMock, "findById").mockReturnValue(null)
 
             const result = await sut.update(paramMockId as any as string, paramMockData)
@@ -57,7 +57,7 @@ describe("UserService", () => {
 
         it("Should be able to update data", async () => {
             const paramMockId = {id: "1"}
-            const paramMockData = {name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date(), favoritedJobs: []}
+            const paramMockData = {name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date()}
             const expected = {name: "Fulaninho", email: "fulano@email.com", password: Crypt.encrypt("123456")}
             vi.spyOn(repositoryMock, "findById").mockResolvedValue(true)
             vi.spyOn(repositoryMock, "update").mockResolvedValue(expected)
@@ -69,7 +69,7 @@ describe("UserService", () => {
 
         it("Should return to handle error when doesn't get to update data", async () => {
             const paramMockId = { id: "1" }
-            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date(), favoritedJobs: [] }
+            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
             const returnError = CommonError.build("Internal server errorr.", STATUS_CODE.INTERNAL_SERVER_ERROR)
             vi.spyOn(repositoryMock, "findById").mockReturnValue(true)
             vi.spyOn(repositoryMock, "update").mockRejectedValue(returnError)

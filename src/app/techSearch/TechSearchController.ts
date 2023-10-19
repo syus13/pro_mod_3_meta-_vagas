@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { TechSearchService } from "./techSearchService";
+import { TechSearchService } from "./TechSearchService";
 import { STATUS_CODE } from "../../utils/statusCode";
 import { CommonError } from "../../utils/CommonError";
 

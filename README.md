@@ -36,7 +36,7 @@ npm start
 Uso
 A API tem várias rotas que você pode usar para interagir com ela.
 
-Usuários
+## Usuários
 Registro de Usuário: POST /users
 Login do Usuário: POST /login
 Atualizar Perfil do Usuário: PUT /users/:id
@@ -61,7 +61,7 @@ Obter últimas pesquisas do usuário: GET /userSearchHistory/lastSearches/:userI
 
 ## Pesquisa de Cidade
 Obter as 5 principais cidades: GET /citySearch/top5
-Obter as 5 principais cidades para a tecnologia mais pesquisada: GET /citySearch/top5
+Obter as 5 principais cidades para a tecnologia mais pesquisada: GET /citySearch/top5cityAndTechnonogy
 
 ## Paginação
 A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta page e perPage para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=2&perPage=10. Isso retornaria os itens 11-20 dos resultados da pesquisa.

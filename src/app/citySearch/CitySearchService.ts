@@ -1,31 +1,36 @@
 import { CommonError } from '../../utils/CommonError';
 import { STATUS_CODE } from '../../utils/statusCode';
+import { TechSearchService } from '../techSearch/TechSearchService';
 import { CitySearchRepository } from './CitySearchRepository';
 
 class CitySearchService {
-  techSearchService: any;
-  constructor(private citySearchRepository: CitySearchRepository) {}
+  
+  constructor(
+    private citySearchRepository: any,
+    private techSearchService: any
+    ) {}
 
   async getTop5Cities() {
     try {
-      return await this.citySearchRepository.find().sort({ count: -1 }).limit(5);
+      const cities = await this.citySearchRepository.find({});
+      cities.sort((a: { count: number; }, b: { count: number; }) => b.count - a.count);
+      return cities.slice(0, 5).map((city: { name: any; }) => city.name);
     } catch (erro: any) {
       return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
+
   async getTop5CitiesForMostSearchedTech() {
-    
     const topTechnology = await this.techSearchService.getTop5Technologies();
   
-   
     try {
-      return await this.citySearchRepository.find({ technology: topTechnology }).sort({ count: -1 }).limit(5);
+      const cities = await this.citySearchRepository.find({ technology: topTechnology });
+      cities.sort((a: { count: number; }, b: { count: number; }) => b.count - a.count);
+      return cities.slice(0, 5).map((city: { name: any; }) => city.name);
     } catch (erro: any) {
       return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
-  
-
 }
 
 export { CitySearchService };

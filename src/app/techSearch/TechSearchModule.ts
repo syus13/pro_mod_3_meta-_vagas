@@ -1,5 +1,5 @@
 import { TechSearchController } from "./TechSearchController";
-import { TechSearchService } from "./techSearchService";
+import { TechSearchService } from "./TechSearchService";
 import { TechSearchRepository } from "./TechSearchRepository";
 import { TechSearch } from "./TechSearch";
 

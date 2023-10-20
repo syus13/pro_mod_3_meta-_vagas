@@ -22,7 +22,7 @@ class AuthService{
 
     const payload = {...userAlreadyExists}
     const secretKey = process.env.JWT_SECRET_KEY as string
-    const options = {expiresIn: '20m'}
+    const options = {expiresIn: '90m'}
     const token = JWT.sign(payload, secretKey, options)
     return {token, user: userAlreadyExists}
 }

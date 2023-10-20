@@ -1,3 +1,7 @@
+// 
+
+// JobRepository.ts
+
 import { Model, Types } from "mongoose";
 import { TypeJob } from "./Job";
 import { CommonError } from "../../utils/CommonError";
@@ -5,10 +9,7 @@ import { STATUS_CODE } from "../../utils/statusCode";
 import { filterMapping } from "./filterMapping";
 
 class JobRepository {
-  constructor(
-    private model: Model<TypeJob>,
-    private techSearchRepository: any
-  ) {}
+  constructor(private model: Model<TypeJob>, private techSearchRepository: any) {}
 
   async create(data: TypeJob) {
     try {
@@ -25,9 +26,7 @@ class JobRepository {
       if (filters) {
         Object.keys(filterMapping).forEach((filterField) => {
           if (filters[filterField]) {
-            query
-              .where(filterMapping[filterField])
-              .equals(filters[filterField]);
+            query.where(filterMapping[filterField]).equals(filters[filterField]);
           }
         });
 
@@ -40,6 +39,7 @@ class JobRepository {
         return CommonError.build("Job not Found", STATUS_CODE.NOT_FOUND);
       }
 
+      return jobs;
     } catch (erro: any) {
       return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
@@ -75,9 +75,11 @@ class JobRepository {
 
       const userIdObjectId = new Types.ObjectId(userId);
 
-      // Verifique se o trabalho já está marcado como favorito pelo usuário
       if (job.favoritedBy.includes(userIdObjectId)) {
-        return CommonError.build("Job is already favorited by the user", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "Job is already favorited by the user",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
 
       job.favoritedBy.push(userIdObjectId);
@@ -91,7 +93,6 @@ class JobRepository {
       );
     }
   }
-
 }
 
 export { JobRepository };

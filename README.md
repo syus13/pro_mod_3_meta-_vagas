@@ -23,7 +23,7 @@ Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores
 ### 💼 Vagas 💼
 
 - Criar uma nova vaga (POST): `http://localhost:3333/jobs`
-- Buscar vagas vagas (GET): `http://localhost:3333/jobs/filter`
+- Buscar vagas vagas (GET): `http://localhost:3333/jobs/search`
 - Marcar vaga como favorita (POST): `http://localhost:3333/jobs/favorite/:id`
 
 ### 💻 Pesquisa de Tecnologia 💻

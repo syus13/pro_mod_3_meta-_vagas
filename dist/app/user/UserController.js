@@ -92,7 +92,10 @@ var UserValidation = class {
       try {
         yield validation.validate(data);
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
       }
     });
   }
@@ -111,7 +114,10 @@ var UpdateValidation = class {
       try {
         yield validation.validate(data);
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
       }
     });
   }
@@ -138,10 +144,15 @@ var UserController = class {
   }
   update(req, res) {
     return __async(this, null, function* () {
-      const { body, params: { id } } = req;
+      const {
+        body,
+        params: { id }
+      } = req;
       const updateValidation = yield UpdateValidation.isValid(body);
       if (updateValidation && updateValidation.error) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST));
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
+        );
       }
       const result = yield this.service.update(id, body);
       if ("error" in result) {
@@ -150,29 +161,24 @@ var UserController = class {
       return res.status(STATUS_CODE.OK).json(result);
     });
   }
-  markJobAsFavorite(req, res) {
+  getFavoriteJobs(req, res) {
     return __async(this, null, function* () {
-      const { userId, jobId } = req.body;
-      const result = yield this.service.markJobAsFavorite(userId, jobId);
-      if ("error" in result) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+      const { userId } = req.params;
+      const resultOrError = this.service.getFavoriteJobs(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
       }
-      return res.status(STATUS_CODE.OK).json(result);
+      return res.status(STATUS_CODE.OK).json(resultOrError);
     });
   }
-  getSearchHistory(req, res) {
+  getUserSearchHistory(req, res) {
     return __async(this, null, function* () {
-      const userId = req.query.userId;
-      const page = req.query.page;
-      const perPage = req.query.perPage;
-      if (userId === void 0) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("ID invalid", STATUS_CODE.BAD_REQUEST));
+      const { userId } = req.params;
+      const resultOrError = yield this.service.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
       }
-      const history = yield this.service.getSearchHistory(userId, page, perPage);
-      if ("error" in history) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(history.message, STATUS_CODE.BAD_REQUEST));
-      }
-      return res.status(STATUS_CODE.OK).json(history);
+      return res.json(resultOrError);
     });
   }
 };

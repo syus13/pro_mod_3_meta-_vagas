@@ -124,44 +124,33 @@ var JobController = class {
       return res.status(STATUS_CODE.CREATED).json(job);
     });
   }
-  filterJobs(req, res) {
+  searchJobs(req, res) {
     return __async(this, null, function* () {
-      const filters = req.body;
-      const { page = "1", perPage = "10" } = req.query;
-      try {
-        const pageNumber = parseInt(page, 10) || 1;
-        const itemsPerPage = parseInt(perPage, 10) || 10;
-        const startIndex = (pageNumber - 1) * itemsPerPage;
-        const jobs = yield this.service.filterJobs(filters, startIndex, itemsPerPage);
-        if ("error" in jobs) {
-          return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(CommonError.build(jobs.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-        }
-        return res.status(STATUS_CODE.OK).json(jobs);
-      } catch (erro) {
+      const { page = 1, limit = 10 } = req.query;
+      const jobsOrError = yield this.service.searchJobs(
+        req.query,
+        Number(page),
+        Number(limit)
+      );
+      if ("error" in jobsOrError) {
         return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
           CommonError.build(
-            erro.message,
+            jobsOrError.message,
             STATUS_CODE.INTERNAL_SERVER_ERROR
           )
         );
       }
+      return res.status(STATUS_CODE.CREATED).json(jobsOrError);
     });
   }
   favoriteJob(req, res) {
     return __async(this, null, function* () {
-      const userId = req.user.id;
-      const jobId = req.params.id;
-      try {
-        const result = yield this.service.favoriteJob(userId, jobId);
-        if (result.error) {
-          return res.status(result.statusCode).json(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-        }
-        return res.status(STATUS_CODE.OK).json(result);
-      } catch (error) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
+      const { userId, jobId } = req.params;
+      const resultOrError = yield this.service.favoriteJob(userId, jobId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
       }
+      return res.json(resultOrError);
     });
   }
 };

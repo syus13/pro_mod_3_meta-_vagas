@@ -57,17 +57,6 @@ module.exports = __toCommonJS(AuthController_exports);
 // src/utils/Validations/auth/AuthValidation.ts
 var yup = __toESM(require("yup"));
 
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -84,17 +73,32 @@ var STATUS_CODE = {
 var AuthValidation = class {
   static isValid(data) {
     return __async(this, null, function* () {
-      const authSchema = yup.object().shape({
+      const loginSchema = yup.object().shape({
         email: yup.string().email().required(),
         password: yup.string().required()
       });
       try {
-        yield authSchema.validate(data);
-        return { error: false };
+        yield loginSchema.validate(data);
+        return { erro: false };
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return {
+          erro: true,
+          message: erro.message,
+          status: STATUS_CODE.BAD_REQUEST
+        };
       }
     });
+  }
+};
+
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
   }
 };
 
@@ -107,8 +111,10 @@ var AuthController = class {
     return __async(this, null, function* () {
       const { body } = req;
       const authController = yield AuthValidation.isValid(body);
-      if ("error" in authController) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST));
+      if (authController.erro) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
+        );
       }
       const result = yield this.service.login(body);
       if ("error" in result) {

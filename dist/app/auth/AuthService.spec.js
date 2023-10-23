@@ -31694,17 +31694,6 @@ var index = /* @__PURE__ */ Object.freeze({
 // node_modules/vitest/dist/index.js
 var expectTypeOf = dist.expectTypeOf;
 
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -31715,6 +31704,17 @@ var STATUS_CODE = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   INTERNAL_SERVER_ERROR: 500
+};
+
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
+  }
 };
 
 // src/utils/Crypt.ts
@@ -31728,6 +31728,9 @@ var Crypt = class {
   }
 };
 
+// src/app/auth/AuthService.spec.ts
+var import_jsonwebtoken2 = __toESM(require_jsonwebtoken());
+
 // src/app/auth/AuhtService.ts
 var import_jsonwebtoken = __toESM(require_jsonwebtoken());
 var AuthService = class {
@@ -31738,15 +31741,24 @@ var AuthService = class {
     return __async(this, null, function* () {
       const userAlreadyExists = yield this.repository.findByEmail(data.email);
       if (!userAlreadyExists) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
-      const passwordIsValid = Crypt.compare(data.password, userAlreadyExists.password);
+      const passwordIsValid = Crypt.compare(
+        data.password,
+        userAlreadyExists.password
+      );
       if (!passwordIsValid) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
       const payload = __spreadValues({}, userAlreadyExists);
       const secretKey = process.env.JWT_SECRET_KEY;
-      const options = { expiresIn: "20m" };
+      const options = { expiresIn: "90m" };
       const token = import_jsonwebtoken.default.sign(payload, secretKey, options);
       return { token, user: userAlreadyExists };
     });
@@ -31754,22 +31766,54 @@ var AuthService = class {
 };
 
 // src/app/auth/AuthService.spec.ts
-var import_jsonwebtoken2 = __toESM(require_jsonwebtoken());
-var repositoryMock = {
-  findByEmail: vi.fn()
-};
+process.env.JWT_SECRET_KEY = "secretkeytest";
+var repositoryMock = { findByEmail: vi.fn() };
 var sut = new AuthService(repositoryMock);
 describe("AuthService", () => {
-  describe("login()", () => {
-    it("Should be able to login a user", () => __async(exports, null, function* () {
-      const dataMock = { email: "test@example.com", password: "password" };
-      const userMock = __spreadProps(__spreadValues({}, dataMock), { id: "1" });
-      const tokenMock = "token";
+  describe("function login()", () => {
+    it("Should login an existing user", () => __async(exports, null, function* () {
+      const paramsMock = {
+        email: "john.doe@example.com",
+        password: "Password123"
+      };
+      const userMock = __spreadProps(__spreadValues({}, paramsMock), {
+        password: Crypt.encrypt(paramsMock.password)
+      });
       vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(userMock);
-      vi.spyOn(Crypt, "compare").mockReturnValue(true);
-      vi.spyOn(import_jsonwebtoken2.default, "sign").mockReturnValue("token");
-      const result = yield sut.login(dataMock);
-      globalExpect(result).toStrictEqual({ token: tokenMock, user: userMock });
+      const result = yield sut.login(paramsMock);
+      if ("user" in result && "token" in result) {
+        globalExpect(result.user.email).toStrictEqual(userMock.email);
+        globalExpect(result.user.password).toStrictEqual(userMock.password);
+        const secretKey = process.env.JWT_SECRET_KEY;
+        const decodedToken = import_jsonwebtoken2.default.verify(result.token, secretKey);
+        globalExpect(decodedToken.email).toStrictEqual(userMock.email);
+        globalExpect(decodedToken.password).toStrictEqual(userMock.password);
+      }
+    }));
+    it("Should return an error when user does not exist", () => __async(exports, null, function* () {
+      const paramsMock = {
+        email: "john.doe@example.com",
+        password: "Password123"
+      };
+      vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(null);
+      const result = yield sut.login(paramsMock);
+      globalExpect(result).toStrictEqual(
+        CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST)
+      );
+    }));
+    it("Should return an error when password is incorrect", () => __async(exports, null, function* () {
+      const paramsMock = {
+        email: "john.doe@example.com",
+        password: "Password123"
+      };
+      const userMock = __spreadProps(__spreadValues({}, paramsMock), {
+        password: Crypt.encrypt("IncorrectPassword")
+      });
+      vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(userMock);
+      const result = yield sut.login(paramsMock);
+      globalExpect(result).toStrictEqual(
+        CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST)
+      );
     }));
   });
 });

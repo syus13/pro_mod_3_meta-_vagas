@@ -15215,17 +15215,6 @@ var index = /* @__PURE__ */ Object.freeze({
 // node_modules/vitest/dist/index.js
 var expectTypeOf = dist.expectTypeOf;
 
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -15238,38 +15227,26 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/job/JobService.ts
-var JobService = class {
-  constructor(repository, techSearchRepository, userRepository) {
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
+  }
+};
+
+// src/app/userSearchHistory/UserSearchHistoryService.ts
+var UserSearchHistoryService = class {
+  constructor(repository) {
     this.repository = repository;
-    this.techSearchRepository = techSearchRepository;
-    this.userRepository = userRepository;
   }
-  create(data) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
-        return yield this.repository.create(data);
-      } catch (erro) {
-        return CommonError.build(
-          "Error registering the job",
-          STATUS_CODE.BAD_REQUEST
-        );
-      }
-    });
-  }
-  searchJobs(filters, page, limit) {
-    return __async(this, null, function* () {
-      try {
-        return yield this.repository.searchJobs(filters, page, limit);
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  favoriteJob(userId, jobId) {
-    return __async(this, null, function* () {
-      try {
-        return yield this.repository.favoriteJob(userId, jobId);
+        return yield this.repository.getUserSearchHistory(userId);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -15277,66 +15254,37 @@ var JobService = class {
   }
 };
 
-// src/app/job/JobService.spec.ts
-var techSearchRepositoryMock = {};
-var jobRepositoryMock = {
-  create: vi.fn(),
-  searchJobs: vi.fn(),
-  favoriteJob: vi.fn(),
+// src/app/userSearchHistory/UserSearchHistory.spec.ts
+var userSearchHistoryRepositoryMock = {
+  getUserSearchHistory: vi.fn(),
   model: { find: vi.fn() }
 };
-var userRepositoryMock = {};
-var sut = new JobService(
-  jobRepositoryMock,
-  techSearchRepositoryMock,
-  userRepositoryMock
-);
-describe("JobService", () => {
-  describe("create()", () => {
-    it("Should be able to create a job", () => __async(exports, null, function* () {
-      const dataMock = {
-        title: "Software Developer",
-        description: "Develop and maintain systems",
-        createdAt: /* @__PURE__ */ new Date(),
-        updatedAt: /* @__PURE__ */ new Date(),
-        position: "Senior",
-        salary: 6e4,
-        city: "Belo Horizonte",
-        website: "www.example.com",
-        company: "Example Company",
-        link: "www.example.com/jobs/software-developer",
-        technology: "JavaScript",
-        favoritedBy: []
-      };
-      const expectMock = __spreadProps(__spreadValues({}, dataMock), { id: "1" });
-      vi.spyOn(jobRepositoryMock, "create").mockReturnValue(expectMock);
-      const result = yield sut.create(dataMock);
-      globalExpect(result).toStrictEqual(expectMock);
-    }));
-  });
-  describe("searchJobs()", () => {
-    it("Should be able to filter jobs", () => __async(exports, null, function* () {
-      const filtersMock = { title: "Software Developer" };
-      const startIndexMock = 0;
-      const itemsPerPageMock = 10;
-      const expectMock = [__spreadProps(__spreadValues({}, filtersMock), { id: "1" })];
-      vi.spyOn(jobRepositoryMock, "searchJobs").mockReturnValue(expectMock);
-      const result = yield sut.searchJobs(
-        filtersMock,
-        startIndexMock,
-        itemsPerPageMock
-      );
-      globalExpect(expectMock).toStrictEqual(expectMock);
-    }));
-  });
-  describe("favoriteJob()", () => {
-    it("Should be able to favorite a job", () => __async(exports, null, function* () {
+var sut = new UserSearchHistoryService(userSearchHistoryRepositoryMock);
+describe("UserSearchHistoryService", () => {
+  describe("getUserSearchHistory()", () => {
+    it("Should be able to get search history of a user", () => __async(exports, null, function* () {
       const userIdMock = "1";
-      const jobIdMock = "1";
-      const expectMock = { userId: userIdMock, jobId: jobIdMock };
-      vi.spyOn(jobRepositoryMock, "favoriteJob").mockReturnValue(expectMock);
-      const result = yield sut.favoriteJob(userIdMock, jobIdMock);
+      const expectMock = ["Search1", "Search2", "Search3"];
+      vi.spyOn(
+        userSearchHistoryRepositoryMock,
+        "getUserSearchHistory"
+      ).mockReturnValue(expectMock);
+      const result = yield sut.getUserSearchHistory(userIdMock);
       globalExpect(result).toStrictEqual(expectMock);
+    }));
+    it("Should return error when an exception is thrown", () => __async(exports, null, function* () {
+      const userIdMock = "1";
+      const errorMock = new Error("Error message");
+      vi.spyOn(
+        userSearchHistoryRepositoryMock,
+        "getUserSearchHistory"
+      ).mockImplementation(() => {
+        throw errorMock;
+      });
+      const result = yield sut.getUserSearchHistory(userIdMock);
+      globalExpect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
     }));
   });
 });

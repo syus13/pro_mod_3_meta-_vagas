@@ -26438,55 +26438,35 @@ var JobController = class {
       return res.status(STATUS_CODE.CREATED).json(job);
     });
   }
-  filterJobs(req, res) {
+  searchJobs(req, res) {
     return __async(this, null, function* () {
-      const filters = req.body;
-      const { page = "1", perPage = "10" } = req.query;
-      try {
-        const pageNumber = parseInt(page, 10) || 1;
-        const itemsPerPage = parseInt(perPage, 10) || 10;
-        const startIndex = (pageNumber - 1) * itemsPerPage;
-        const jobs = yield this.service.filterJobs(filters, startIndex, itemsPerPage);
-        if ("error" in jobs) {
-          return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(CommonError.build(jobs.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-        }
-        return res.status(STATUS_CODE.OK).json(jobs);
-      } catch (erro) {
+      const { page = 1, limit = 10 } = req.query;
+      const jobsOrError = yield this.service.searchJobs(
+        req.query,
+        Number(page),
+        Number(limit)
+      );
+      if ("error" in jobsOrError) {
         return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
           CommonError.build(
-            erro.message,
+            jobsOrError.message,
             STATUS_CODE.INTERNAL_SERVER_ERROR
           )
         );
       }
+      return res.status(STATUS_CODE.CREATED).json(jobsOrError);
     });
   }
   favoriteJob(req, res) {
     return __async(this, null, function* () {
-      const userId = req.user.id;
-      const jobId = req.params.id;
-      try {
-        const result = yield this.service.favoriteJob(userId, jobId);
-        if (result.error) {
-          return res.status(result.statusCode).json(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-        }
-        return res.status(STATUS_CODE.OK).json(result);
-      } catch (error) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
+      const { userId, jobId } = req.params;
+      const resultOrError = yield this.service.favoriteJob(userId, jobId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
       }
+      return res.json(resultOrError);
     });
   }
-};
-
-// src/app/job/filterMapping.ts
-var filterMapping = {
-  technology: "technology",
-  company: "company",
-  city: "city",
-  salary: "salary",
-  position: "position"
 };
 
 // src/app/job/JobService.ts
@@ -26508,48 +26488,12 @@ var JobService = class {
       }
     });
   }
-  filterJobs(filters, startIndex, itemsPerPage) {
+  searchJobs(filters, page, limit) {
     return __async(this, null, function* () {
       try {
-        const jobAlreadyExists = yield this.repository.filterJobs(
-          filters,
-          startIndex,
-          itemsPerPage
-        );
-        if (jobAlreadyExists.length === 0) {
-          return CommonError.build("Job not found", STATUS_CODE.NOT_FOUND);
-        }
-        if (filters.technology) {
-          yield this.techSearchRepository.upsertTechCount(filters);
-        }
-        const filteredJobs = yield this.buildQuery(
-          filters,
-          startIndex,
-          itemsPerPage
-        );
-        yield this.userRepository.searchRecord(filters, jobAlreadyExists);
-        return filteredJobs;
+        return yield this.repository.searchJobs(filters, page, limit);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  buildQuery(filters, startIndex, itemsPerPage) {
-    return __async(this, null, function* () {
-      try {
-        const query = this.repository.model.find();
-        if (filters) {
-          Object.keys(filterMapping).forEach((filterField) => {
-            if (filters[filterField]) {
-              query.where(filterMapping[filterField]).equals(filters[filterField]);
-            }
-          });
-          query.skip(startIndex).limit(itemsPerPage);
-        }
-        const jobs = yield query.exec();
-        return jobs;
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -26557,18 +26501,14 @@ var JobService = class {
     return __async(this, null, function* () {
       try {
         return yield this.repository.favoriteJob(userId, jobId);
-      } catch (error) {
-        return CommonError.build(
-          error.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
 };
 
 // src/app/job/JobRepository.ts
-var import_mongoose = require("mongoose");
 var JobRepository = class {
   constructor(model2, techSearchRepository) {
     this.model = model2;
@@ -26583,90 +26523,54 @@ var JobRepository = class {
       }
     });
   }
-  filterJobs(filters, startIndex, itemsPerPage) {
+  searchJobs(filters, page, limit) {
     return __async(this, null, function* () {
       try {
-        const query = this.model.find();
-        if (filters) {
-          Object.keys(filterMapping).forEach((filterField) => {
-            if (filters[filterField]) {
-              query.where(filterMapping[filterField]).equals(filters[filterField]);
-            }
-          });
-          query.skip(startIndex).limit(itemsPerPage);
-        }
-        const jobs = yield query.exec();
-        if (jobs.length === 0) {
-          return CommonError.build("Job not Found", STATUS_CODE.NOT_FOUND);
-        }
+        return yield this.model.find(filters).skip((page - 1) * limit).limit(limit);
       } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  upsertTechCount(filters) {
-    return __async(this, null, function* () {
-      try {
-        const existingTech = yield this.techSearchRepository.findOne({
-          technology: filters.technology
-        });
-        if (existingTech) {
-          existingTech.count += 1;
-          yield existingTech.save();
-        } else {
-          yield this.techSearchRepository.create({
-            technology: filters.technology,
-            count: 1
-          });
-        }
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
       }
     });
   }
   favoriteJob(userId, jobId) {
     return __async(this, null, function* () {
       try {
-        const job = yield this.model.findById(jobId);
-        if (!job) {
-          return CommonError.build("Job not found", STATUS_CODE.NOT_FOUND);
-        }
-        const userIdObjectId = new import_mongoose.Types.ObjectId(userId);
-        if (job.favoritedBy.includes(userIdObjectId)) {
-          return CommonError.build("Job is already favorited by the user", STATUS_CODE.BAD_REQUEST);
-        }
-        job.favoritedBy.push(userIdObjectId);
-        yield job.save();
-        return { message: "Job favorited successfully" };
-      } catch (error) {
-        return CommonError.build(
-          error.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
+        return yield this.model.updateOne(
+          { _id: jobId },
+          { $addToSet: { favoritedBy: userId } }
         );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
       }
     });
   }
 };
 
 // src/app/job/Job.ts
-var import_mongoose2 = require("mongoose");
-var JobSchema = new import_mongoose2.Schema({
-  position: { type: String, required: true },
-  salary: { type: Number, required: true },
-  city: { type: String, required: true },
-  website: { type: String, required: true },
-  company: { type: String, required: true },
-  description: { type: String, required: true },
-  link: { type: String, required: true },
-  technology: { type: String, required: true },
-  favoritedBy: [{ type: import_mongoose2.Schema.Types.ObjectId, ref: "User" }]
-}, { timestamps: true });
-var Job = (0, import_mongoose2.model)("Job", JobSchema);
+var import_mongoose = require("mongoose");
+var JobSchema = new import_mongoose.Schema(
+  {
+    position: { type: String, required: true },
+    salary: { type: Number, required: true },
+    city: { type: String, required: true },
+    website: { type: String, required: true },
+    company: { type: String, required: true },
+    description: { type: String, required: true },
+    link: { type: String, required: true },
+    technology: { type: String, required: true },
+    favoritedBy: [{ type: import_mongoose.Schema.Types.ObjectId, ref: "User" }]
+  },
+  { timestamps: true }
+);
+var Job = (0, import_mongoose.model)("Job", JobSchema);
 
 // src/app/user/UserRepository.ts
 var UserRepository = class {
   constructor(model2) {
     this.model = model2;
+  }
+  searchRecord(filters, jobAlreadyExists) {
+    throw new Error("Method not implemented.");
   }
   findByEmail(email) {
     return __async(this, null, function* () {
@@ -26699,6 +26603,24 @@ var UserRepository = class {
     return __async(this, null, function* () {
       try {
         return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -26738,79 +26660,12 @@ var TechSearchRepository = class {
       }
     });
   }
-  sortAndLimit(query, sortField, limit) {
+  getTopTechnologies() {
     return __async(this, null, function* () {
       try {
-        return query.sort({ [sortField]: -1 }).limit(limit);
+        return yield this.model.find().sort({ count: -1 }).limit(5);
       } catch (erro) {
         CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopTechnologies(limit = 5) {
-    return __async(this, null, function* () {
-      try {
-        const topTechnologies = yield this.model.find({}).sort({ count: -1 }).limit(limit);
-        return topTechnologies;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopCitiesForMostSearchedTech(limit = 5) {
-    return __async(this, null, function* () {
-      try {
-        const topCities = yield this.model.find({ technology: { $ne: "" } }).sort({ count: -1 }).limit(limit);
-        return topCities;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      const searchRecord = yield this.model.findOne({ technology, city });
-      return searchRecord ? searchRecord.count : null;
-    });
-  }
-  incrementSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      return this.model.findOneAndUpdate(
-        { technology, city },
-        { $inc: { count: 1 } }
-      );
-    });
-  }
-  createSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      return this.model.create({ technology, city, count: 1 });
-    });
-  }
-  searchTech(query, startIndex, perPage) {
-    return __async(this, null, function* () {
-      try {
-        const { technology, city } = query;
-        const filter = {};
-        if (technology) {
-          filter.technology = technology;
-        }
-        if (city) {
-          filter.city = city;
-        }
-        const results = yield this.model.find(filter).skip(startIndex).limit(perPage);
-        return results;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  searchTechAndCity(technology, city) {
-    return __async(this, null, function* () {
-      try {
-        const record = yield this.model.findOne({ technology, city });
-        return record ? record.count : 0;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -26820,7 +26675,11 @@ var TechSearchRepository = class {
 var JobModule = class {
   static getInstance() {
     const repository = new JobRepository(Job, TechSearchRepository);
-    const service = new JobService(repository, TechSearchRepository, UserRepository);
+    const service = new JobService(
+      repository,
+      TechSearchRepository,
+      UserRepository
+    );
     const controller2 = new JobController(service);
     return { repository, service, controller: controller2 };
   }
@@ -26850,9 +26709,14 @@ var AuthMiddleware = class {
 // src/routes/jobRoutes.ts
 var jobRoutes = (0, import_express.Router)();
 var { controller } = JobModule.getInstance();
-jobRoutes.post("/", AuthMiddleware.handler, controller.createJob.bind(controller));
-jobRoutes.post("/filter", controller.filterJobs.bind(controller));
-jobRoutes.post("/favorite/:id", controller.favoriteJob.bind(controller));
+jobRoutes.use(AuthMiddleware.handler);
+jobRoutes.post("/", controller.createJob.bind(controller));
+jobRoutes.get("/search", controller.searchJobs.bind(controller));
+jobRoutes.put(
+  "/:userId/favorite/:jobId",
+  controller.favoriteJob.bind(controller)
+);
+jobRoutes.get("/:pagination", controller.favoriteJob.bind(controller));
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   jobRoutes

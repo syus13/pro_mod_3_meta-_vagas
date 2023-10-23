@@ -37,79 +37,27 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository_exports = {};
-__export(TechSearchRepository_exports, {
-  TechSearchRepository: () => TechSearchRepository
+// src/app/userSearchHistory/UserSearchHistoryRepository .ts
+var UserSearchHistoryRepository_exports = {};
+__export(UserSearchHistoryRepository_exports, {
+  UserSearchHistoryRepository: () => UserSearchHistoryRepository
 });
-module.exports = __toCommonJS(TechSearchRepository_exports);
-
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
-// src/utils/statusCode.ts
-var STATUS_CODE = {
-  OK: 200,
-  CREATED: 201,
-  NO_CONTENT: 204,
-  BAD_REQUEST: 400,
-  NON_AUTHORIZED: 401,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500
-};
-
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository = class {
+module.exports = __toCommonJS(UserSearchHistoryRepository_exports);
+var UserSearchHistoryRepository = class {
   constructor(model) {
     this.model = model;
   }
-  findOne(query) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
-        return this.model.findOne(query);
+        return yield this.model.find({ userId }).sort({ timestamp: -1 });
       } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  create(data) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.create(data);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  find(query) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.find(query);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopTechnologies() {
-    return __async(this, null, function* () {
-      try {
-        return yield this.model.find().sort({ count: -1 }).limit(5);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        throw new Error(`Failed to get user search history: ${erro.message}`);
       }
     });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  TechSearchRepository
+  UserSearchHistoryRepository
 });

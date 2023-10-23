@@ -15215,17 +15215,6 @@ var index = /* @__PURE__ */ Object.freeze({
 // node_modules/vitest/dist/index.js
 var expectTypeOf = dist.expectTypeOf;
 
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -15238,38 +15227,41 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/job/JobService.ts
-var JobService = class {
-  constructor(repository, techSearchRepository, userRepository) {
-    this.repository = repository;
-    this.techSearchRepository = techSearchRepository;
-    this.userRepository = userRepository;
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
   }
-  create(data) {
+};
+
+// src/app/citySearch/CitySearchService.ts
+var CitySearchService = class {
+  constructor(citySearchRepository, techSearchService) {
+    this.citySearchRepository = citySearchRepository;
+    this.techSearchService = techSearchService;
+  }
+  getTop5Cities() {
     return __async(this, null, function* () {
       try {
-        return yield this.repository.create(data);
-      } catch (erro) {
-        return CommonError.build(
-          "Error registering the job",
-          STATUS_CODE.BAD_REQUEST
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b2) => b2.count - a.count
         );
-      }
-    });
-  }
-  searchJobs(filters, page, limit) {
-    return __async(this, null, function* () {
-      try {
-        return yield this.repository.searchJobs(filters, page, limit);
+        return cities.slice(0, 5).map((city) => city.name);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  favoriteJob(userId, jobId) {
+  getTop5CitiesForMostSearchedTech() {
     return __async(this, null, function* () {
       try {
-        return yield this.repository.favoriteJob(userId, jobId);
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -15277,66 +15269,74 @@ var JobService = class {
   }
 };
 
-// src/app/job/JobService.spec.ts
-var techSearchRepositoryMock = {};
-var jobRepositoryMock = {
-  create: vi.fn(),
-  searchJobs: vi.fn(),
-  favoriteJob: vi.fn(),
-  model: { find: vi.fn() }
+// src/app/citySearch/CitySearchService.spec.ts
+var citySearchRepositoryMock = {
+  find: vi.fn(),
+  getTopTechnology: vi.fn(),
+  getTopCitiesForTechnology: vi.fn()
 };
-var userRepositoryMock = {};
-var sut = new JobService(
-  jobRepositoryMock,
-  techSearchRepositoryMock,
-  userRepositoryMock
+var techSearchServiceMock = {};
+var sut = new CitySearchService(
+  citySearchRepositoryMock,
+  techSearchServiceMock
 );
-describe("JobService", () => {
-  describe("create()", () => {
-    it("Should be able to create a job", () => __async(exports, null, function* () {
-      const dataMock = {
-        title: "Software Developer",
-        description: "Develop and maintain systems",
-        createdAt: /* @__PURE__ */ new Date(),
-        updatedAt: /* @__PURE__ */ new Date(),
-        position: "Senior",
-        salary: 6e4,
-        city: "Belo Horizonte",
-        website: "www.example.com",
-        company: "Example Company",
-        link: "www.example.com/jobs/software-developer",
-        technology: "JavaScript",
-        favoritedBy: []
-      };
-      const expectMock = __spreadProps(__spreadValues({}, dataMock), { id: "1" });
-      vi.spyOn(jobRepositoryMock, "create").mockReturnValue(expectMock);
-      const result = yield sut.create(dataMock);
-      globalExpect(result).toStrictEqual(expectMock);
+describe("CitySearchService", () => {
+  describe("function getTop5Cities()", () => {
+    it("Should return top 5 cities", () => __async(exports, null, function* () {
+      const citiesMock = [
+        { name: "City1", count: 5 },
+        { name: "City2", count: 4 },
+        { name: "City3", count: 3 },
+        { name: "City4", count: 2 },
+        { name: "City5", count: 1 },
+        { name: "City6", count: 0 }
+      ];
+      vi.spyOn(citySearchRepositoryMock, "find").mockReturnValue(citiesMock);
+      const result = yield sut.getTop5Cities();
+      globalExpect(result).toStrictEqual([
+        "City1",
+        "City2",
+        "City3",
+        "City4",
+        "City5"
+      ]);
     }));
-  });
-  describe("searchJobs()", () => {
-    it("Should be able to filter jobs", () => __async(exports, null, function* () {
-      const filtersMock = { title: "Software Developer" };
-      const startIndexMock = 0;
-      const itemsPerPageMock = 10;
-      const expectMock = [__spreadProps(__spreadValues({}, filtersMock), { id: "1" })];
-      vi.spyOn(jobRepositoryMock, "searchJobs").mockReturnValue(expectMock);
-      const result = yield sut.searchJobs(
-        filtersMock,
-        startIndexMock,
-        itemsPerPageMock
+    it("Should return error when an exception is thrown", () => __async(exports, null, function* () {
+      const errorMock = new Error("Error message");
+      vi.spyOn(citySearchRepositoryMock, "find").mockImplementation(() => {
+        throw errorMock;
+      });
+      const result = yield sut.getTop5Cities();
+      globalExpect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
       );
-      globalExpect(expectMock).toStrictEqual(expectMock);
     }));
   });
-  describe("favoriteJob()", () => {
-    it("Should be able to favorite a job", () => __async(exports, null, function* () {
-      const userIdMock = "1";
-      const jobIdMock = "1";
-      const expectMock = { userId: userIdMock, jobId: jobIdMock };
-      vi.spyOn(jobRepositoryMock, "favoriteJob").mockReturnValue(expectMock);
-      const result = yield sut.favoriteJob(userIdMock, jobIdMock);
-      globalExpect(result).toStrictEqual(expectMock);
+  describe("function getTop5CitiesForMostSearchedTech()", () => {
+    it("Should return top 5 cities for most searched tech", () => __async(exports, null, function* () {
+      const topTechMock = "Tech1";
+      const topCitiesMock = ["City1", "City2", "City3", "City4", "City5"];
+      vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockReturnValue(
+        topTechMock
+      );
+      vi.spyOn(
+        citySearchRepositoryMock,
+        "getTopCitiesForTechnology"
+      ).mockReturnValue(topCitiesMock);
+      const result = yield sut.getTop5CitiesForMostSearchedTech();
+      globalExpect(result).toStrictEqual(topCitiesMock);
+    }));
+    it("Should return error when an exception is thrown", () => __async(exports, null, function* () {
+      const errorMock = new Error("Error message");
+      vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockImplementation(
+        () => {
+          throw errorMock;
+        }
+      );
+      const result = yield sut.getTop5CitiesForMostSearchedTech();
+      globalExpect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
     }));
   });
 });

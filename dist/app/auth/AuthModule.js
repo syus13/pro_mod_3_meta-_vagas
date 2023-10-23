@@ -16552,12 +16552,16 @@ module.exports = __toCommonJS(AuthModule_exports);
 
 // src/app/user/User.ts
 var import_mongoose = require("mongoose");
-var UserSchema = new import_mongoose.Schema({
-  name: { type: String, required: true },
-  password: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  favoritedJobs: [{ type: import_mongoose.Schema.Types.ObjectId, ref: "Job" }]
-}, { timestamps: true });
+var UserSchema = new import_mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    password: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    searchHistory: { type: [String], default: [] },
+    favoritedBy: { type: [String], default: [] }
+  },
+  { timestamps: true }
+);
 var User = (0, import_mongoose.model)("User", UserSchema);
 
 // src/utils/CommonError.ts
@@ -16587,6 +16591,9 @@ var STATUS_CODE = {
 var UserRepository = class {
   constructor(model2) {
     this.model = model2;
+  }
+  searchRecord(filters, jobAlreadyExists) {
+    throw new Error("Method not implemented.");
   }
   findByEmail(email) {
     return __async(this, null, function* () {
@@ -16624,6 +16631,24 @@ var UserRepository = class {
       }
     });
   }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
 };
 
 // src/utils/Crypt.ts
@@ -16647,15 +16672,24 @@ var AuthService = class {
     return __async(this, null, function* () {
       const userAlreadyExists = yield this.repository.findByEmail(data.email);
       if (!userAlreadyExists) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
-      const passwordIsValid = Crypt.compare(data.password, userAlreadyExists.password);
+      const passwordIsValid = Crypt.compare(
+        data.password,
+        userAlreadyExists.password
+      );
       if (!passwordIsValid) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
       const payload = __spreadValues({}, userAlreadyExists);
       const secretKey = process.env.JWT_SECRET_KEY;
-      const options = { expiresIn: "20m" };
+      const options = { expiresIn: "90m" };
       const token = import_jsonwebtoken.default.sign(payload, secretKey, options);
       return { token, user: userAlreadyExists };
     });
@@ -16667,15 +16701,19 @@ var yup = __toESM(require("yup"));
 var AuthValidation = class {
   static isValid(data) {
     return __async(this, null, function* () {
-      const authSchema = yup.object().shape({
+      const loginSchema = yup.object().shape({
         email: yup.string().email().required(),
         password: yup.string().required()
       });
       try {
-        yield authSchema.validate(data);
-        return { error: false };
+        yield loginSchema.validate(data);
+        return { erro: false };
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return {
+          erro: true,
+          message: erro.message,
+          status: STATUS_CODE.BAD_REQUEST
+        };
       }
     });
   }
@@ -16690,8 +16728,10 @@ var AuthController = class {
     return __async(this, null, function* () {
       const { body } = req;
       const authController = yield AuthValidation.isValid(body);
-      if ("error" in authController) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST));
+      if (authController.erro) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
+        );
       }
       const result = yield this.service.login(body);
       if ("error" in result) {

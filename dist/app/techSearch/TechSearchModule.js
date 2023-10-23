@@ -76,7 +76,10 @@ var TechSearchController = class {
     return __async(this, null, function* () {
       const { technology, city } = req.body;
       try {
-        const result = yield this.techSearchService.registerTechSearch(technology, city);
+        const result = yield this.techSearchService.registerTechSearch(
+          technology,
+          city
+        );
         return res.status(STATUS_CODE.OK).json(result);
       } catch (erro) {
         return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
@@ -87,73 +90,16 @@ var TechSearchController = class {
   }
   getTopTechnologies(req, res) {
     return __async(this, null, function* () {
-      try {
-        const limit = 5;
-        const topTechnologies = yield this.techSearchService.getTopTechnologies(limit);
-        return res.status(STATUS_CODE.OK).json(topTechnologies);
-      } catch (erro) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
+      const resultOrError = yield this.techSearchService.getTopTechnologies();
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
       }
-    });
-  }
-  getTopCitiesForMostSearchedTech(req, res) {
-    return __async(this, null, function* () {
-      try {
-        const topCities = yield this.techSearchService.getTopCitiesForMostSearchedTech();
-        return res.status(STATUS_CODE.OK).json(topCities);
-      } catch (erro) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
-      }
-    });
-  }
-  searchTechAndCity(req, res) {
-    return __async(this, null, function* () {
-      try {
-        const { technology, city } = req.query;
-        if (!technology || !city) {
-          CommonError.build("Technology and city Not Found", STATUS_CODE.NOT_FOUND);
-        }
-        const count = yield this.techSearchService.searchTechAndCity(technology, city);
-        return res.status(STATUS_CODE.OK).json({ count });
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTechSearchResults(req, res) {
-    return __async(this, null, function* () {
-      try {
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const perPage = req.query.perPage ? parseInt(req.query.perPage) : 10;
-        const startIndex = (page - 1) * perPage;
-        const results = yield this.techSearchService.searchTech(req.query, startIndex, perPage);
-        return res.status(STATUS_CODE.OK).json(results);
-      } catch (error) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(error.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
-      }
-    });
-  }
-  getTop5Technologies(req, res) {
-    return __async(this, null, function* () {
-      try {
-        const topTechnologies = yield this.techSearchService.getTop5Technologies();
-        return res.status(STATUS_CODE.OK).json(topTechnologies);
-      } catch (erro) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-        );
-      }
+      return res.json(resultOrError);
     });
   }
 };
 
-// src/app/techSearch/techSearchService.ts
+// src/app/techSearch/TechSearchService.ts
 var TechSearchService = class {
   constructor(techSearchRepository) {
     this.techSearchRepository = techSearchRepository;
@@ -177,54 +123,14 @@ var TechSearchService = class {
         }
         return existingRecord;
       } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  getTopTechnologies(limit = 5) {
+  getTopTechnologies() {
     return __async(this, null, function* () {
       try {
-        return this.techSearchRepository.getTopTechnologies(limit);
-      } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
-      }
-    });
-  }
-  getTopCitiesForMostSearchedTech() {
-    return __async(this, null, function* () {
-      try {
-        return this.techSearchRepository.getTopCitiesForMostSearchedTech();
-      } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
-      }
-    });
-  }
-  searchTechAndCity(technology, city) {
-    return __async(this, null, function* () {
-      const count = yield this.techSearchRepository.getSearchCount(technology, city);
-      if (count !== null) {
-        yield this.techSearchRepository.incrementSearchCount(technology, city);
-        return count + 1;
-      } else {
-        yield this.techSearchRepository.createSearchCount(technology, city);
-        return 1;
-      }
-    });
-  }
-  searchTech(query, startIndex, perPage) {
-    return __async(this, null, function* () {
-      try {
-        const results = yield this.techSearchRepository.searchTech(query, startIndex, perPage);
-        return results;
+        return yield this.techSearchRepository.getTopTechnologies();
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -264,79 +170,12 @@ var TechSearchRepository = class {
       }
     });
   }
-  sortAndLimit(query, sortField, limit) {
+  getTopTechnologies() {
     return __async(this, null, function* () {
       try {
-        return query.sort({ [sortField]: -1 }).limit(limit);
+        return yield this.model.find().sort({ count: -1 }).limit(5);
       } catch (erro) {
         CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopTechnologies(limit = 5) {
-    return __async(this, null, function* () {
-      try {
-        const topTechnologies = yield this.model.find({}).sort({ count: -1 }).limit(limit);
-        return topTechnologies;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopCitiesForMostSearchedTech(limit = 5) {
-    return __async(this, null, function* () {
-      try {
-        const topCities = yield this.model.find({ technology: { $ne: "" } }).sort({ count: -1 }).limit(limit);
-        return topCities;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      const searchRecord = yield this.model.findOne({ technology, city });
-      return searchRecord ? searchRecord.count : null;
-    });
-  }
-  incrementSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      return this.model.findOneAndUpdate(
-        { technology, city },
-        { $inc: { count: 1 } }
-      );
-    });
-  }
-  createSearchCount(technology, city) {
-    return __async(this, null, function* () {
-      return this.model.create({ technology, city, count: 1 });
-    });
-  }
-  searchTech(query, startIndex, perPage) {
-    return __async(this, null, function* () {
-      try {
-        const { technology, city } = query;
-        const filter = {};
-        if (technology) {
-          filter.technology = technology;
-        }
-        if (city) {
-          filter.city = city;
-        }
-        const results = yield this.model.find(filter).skip(startIndex).limit(perPage);
-        return results;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  searchTechAndCity(technology, city) {
-    return __async(this, null, function* () {
-      try {
-        const record = yield this.model.findOne({ technology, city });
-        return record ? record.count : 0;
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -344,11 +183,14 @@ var TechSearchRepository = class {
 
 // src/app/techSearch/TechSearch.ts
 var import_mongoose = require("mongoose");
-var TechSearchSchema = new import_mongoose.Schema({
-  technology: { type: String, required: true },
-  count: { type: Number, required: true },
-  city: { type: String, required: true }
-}, { timestamps: true });
+var TechSearchSchema = new import_mongoose.Schema(
+  {
+    technology: { type: String, required: true },
+    count: { type: Number, required: true },
+    city: { type: String, required: true }
+  },
+  { timestamps: true }
+);
 var TechSearch = (0, import_mongoose.model)("TechSearch", TechSearchSchema);
 
 // src/app/techSearch/TechSearchModule.ts

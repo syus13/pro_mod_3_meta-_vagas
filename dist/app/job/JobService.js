@@ -67,15 +67,6 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/job/filterMapping.ts
-var filterMapping = {
-  technology: "technology",
-  company: "company",
-  city: "city",
-  salary: "salary",
-  position: "position"
-};
-
 // src/app/job/JobService.ts
 var JobService = class {
   constructor(repository, techSearchRepository, userRepository) {
@@ -95,48 +86,12 @@ var JobService = class {
       }
     });
   }
-  filterJobs(filters, startIndex, itemsPerPage) {
+  searchJobs(filters, page, limit) {
     return __async(this, null, function* () {
       try {
-        const jobAlreadyExists = yield this.repository.filterJobs(
-          filters,
-          startIndex,
-          itemsPerPage
-        );
-        if (jobAlreadyExists.length === 0) {
-          return CommonError.build("Job not found", STATUS_CODE.NOT_FOUND);
-        }
-        if (filters.technology) {
-          yield this.techSearchRepository.upsertTechCount(filters);
-        }
-        const filteredJobs = yield this.buildQuery(
-          filters,
-          startIndex,
-          itemsPerPage
-        );
-        yield this.userRepository.searchRecord(filters, jobAlreadyExists);
-        return filteredJobs;
+        return yield this.repository.searchJobs(filters, page, limit);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  buildQuery(filters, startIndex, itemsPerPage) {
-    return __async(this, null, function* () {
-      try {
-        const query = this.repository.model.find();
-        if (filters) {
-          Object.keys(filterMapping).forEach((filterField) => {
-            if (filters[filterField]) {
-              query.where(filterMapping[filterField]).equals(filters[filterField]);
-            }
-          });
-          query.skip(startIndex).limit(itemsPerPage);
-        }
-        const jobs = yield query.exec();
-        return jobs;
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -144,11 +99,8 @@ var JobService = class {
     return __async(this, null, function* () {
       try {
         return yield this.repository.favoriteJob(userId, jobId);
-      } catch (error) {
-        return CommonError.build(
-          error.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }

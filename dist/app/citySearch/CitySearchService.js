@@ -69,13 +69,18 @@ var STATUS_CODE = {
 
 // src/app/citySearch/CitySearchService.ts
 var CitySearchService = class {
-  constructor(citySearchRepository) {
+  constructor(citySearchRepository, techSearchService) {
     this.citySearchRepository = citySearchRepository;
+    this.techSearchService = techSearchService;
   }
   getTop5Cities() {
     return __async(this, null, function* () {
       try {
-        return yield this.citySearchRepository.find().sort({ count: -1 }).limit(5);
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b) => b.count - a.count
+        );
+        return cities.slice(0, 5).map((city) => city.name);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -83,9 +88,9 @@ var CitySearchService = class {
   }
   getTop5CitiesForMostSearchedTech() {
     return __async(this, null, function* () {
-      const topTechnology = yield this.techSearchService.getTop5Technologies();
       try {
-        return yield this.citySearchRepository.find({ technology: topTechnology }).sort({ count: -1 }).limit(5);
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }

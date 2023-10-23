@@ -72,6 +72,9 @@ var UserRepository = class {
   constructor(model) {
     this.model = model;
   }
+  searchRecord(filters, jobAlreadyExists) {
+    throw new Error("Method not implemented.");
+  }
   findByEmail(email) {
     return __async(this, null, function* () {
       try {
@@ -103,6 +106,24 @@ var UserRepository = class {
     return __async(this, null, function* () {
       try {
         return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }

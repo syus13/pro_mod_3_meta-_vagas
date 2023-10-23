@@ -37,12 +37,12 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository_exports = {};
-__export(TechSearchRepository_exports, {
-  TechSearchRepository: () => TechSearchRepository
+// src/app/userSearchHistory/UserSearchHistoryService.ts
+var UserSearchHistoryService_exports = {};
+__export(UserSearchHistoryService_exports, {
+  UserSearchHistoryService: () => UserSearchHistoryService
 });
-module.exports = __toCommonJS(TechSearchRepository_exports);
+module.exports = __toCommonJS(UserSearchHistoryService_exports);
 
 // src/utils/CommonError.ts
 var CommonError = class {
@@ -67,49 +67,22 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository = class {
-  constructor(model) {
-    this.model = model;
+// src/app/userSearchHistory/UserSearchHistoryService.ts
+var UserSearchHistoryService = class {
+  constructor(repository) {
+    this.repository = repository;
   }
-  findOne(query) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
-        return this.model.findOne(query);
+        return yield this.repository.getUserSearchHistory(userId);
       } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  create(data) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.create(data);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  find(query) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.find(query);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopTechnologies() {
-    return __async(this, null, function* () {
-      try {
-        return yield this.model.find().sort({ count: -1 }).limit(5);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  TechSearchRepository
+  UserSearchHistoryService
 });

@@ -37,23 +37,12 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository_exports = {};
-__export(TechSearchRepository_exports, {
-  TechSearchRepository: () => TechSearchRepository
+// src/app/userSearchHistory/UserSearchHistoryController.ts
+var UserSearchHistoryController_exports = {};
+__export(UserSearchHistoryController_exports, {
+  UserSearchHistoryController: () => UserSearchHistoryController
 });
-module.exports = __toCommonJS(TechSearchRepository_exports);
-
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
+module.exports = __toCommonJS(UserSearchHistoryController_exports);
 
 // src/utils/statusCode.ts
 var STATUS_CODE = {
@@ -67,49 +56,39 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/techSearch/TechSearchRepository.ts
-var TechSearchRepository = class {
-  constructor(model) {
-    this.model = model;
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
   }
-  findOne(query) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.findOne(query);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
+};
+
+// src/app/userSearchHistory/UserSearchHistoryController.ts
+var UserSearchHistoryController = class {
+  constructor(userSearchHistoryService) {
+    this.userSearchHistoryService = userSearchHistoryService;
   }
-  create(data) {
+  getUserSearchHistory(req, res) {
     return __async(this, null, function* () {
-      try {
-        return this.model.create(data);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      const { userId } = req.params;
+      const resultOrError = yield this.userSearchHistoryService.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            resultOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
+        );
       }
-    });
-  }
-  find(query) {
-    return __async(this, null, function* () {
-      try {
-        return this.model.find(query);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  getTopTechnologies() {
-    return __async(this, null, function* () {
-      try {
-        return yield this.model.find().sort({ count: -1 }).limit(5);
-      } catch (erro) {
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
+      return res.json(resultOrError);
     });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  TechSearchRepository
+  UserSearchHistoryController
 });

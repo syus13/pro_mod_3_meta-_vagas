@@ -24,17 +24,20 @@ __export(Job_exports, {
 });
 module.exports = __toCommonJS(Job_exports);
 var import_mongoose = require("mongoose");
-var JobSchema = new import_mongoose.Schema({
-  position: { type: String, required: true },
-  salary: { type: Number, required: true },
-  city: { type: String, required: true },
-  website: { type: String, required: true },
-  company: { type: String, required: true },
-  description: { type: String, required: true },
-  link: { type: String, required: true },
-  technology: { type: String, required: true },
-  favoritedBy: [{ type: import_mongoose.Schema.Types.ObjectId, ref: "User" }]
-}, { timestamps: true });
+var JobSchema = new import_mongoose.Schema(
+  {
+    position: { type: String, required: true },
+    salary: { type: Number, required: true },
+    city: { type: String, required: true },
+    website: { type: String, required: true },
+    company: { type: String, required: true },
+    description: { type: String, required: true },
+    link: { type: String, required: true },
+    technology: { type: String, required: true },
+    favoritedBy: [{ type: import_mongoose.Schema.Types.ObjectId, ref: "User" }]
+  },
+  { timestamps: true }
+);
 var Job = (0, import_mongoose.model)("Job", JobSchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

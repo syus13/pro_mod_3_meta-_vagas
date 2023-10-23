@@ -100,13 +100,18 @@ var CitySearchController = class {
 
 // src/app/citySearch/CitySearchService.ts
 var CitySearchService = class {
-  constructor(citySearchRepository) {
+  constructor(citySearchRepository, techSearchService) {
     this.citySearchRepository = citySearchRepository;
+    this.techSearchService = techSearchService;
   }
   getTop5Cities() {
     return __async(this, null, function* () {
       try {
-        return yield this.citySearchRepository.find().sort({ count: -1 }).limit(5);
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b) => b.count - a.count
+        );
+        return cities.slice(0, 5).map((city) => city.name);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -114,9 +119,9 @@ var CitySearchService = class {
   }
   getTop5CitiesForMostSearchedTech() {
     return __async(this, null, function* () {
-      const topTechnology = yield this.techSearchService.getTop5Technologies();
       try {
-        return yield this.citySearchRepository.find({ technology: topTechnology }).sort({ count: -1 }).limit(5);
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -138,22 +143,20 @@ var CitySearchRepository = class {
       }
     });
   }
-  sortAndLimit(query, sortField, limit) {
+  getTopTechnology() {
     return __async(this, null, function* () {
-      try {
-        return query.sort({ [sortField]: -1 }).limit(limit);
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      const topTechs = yield this.model.find().sort({ count: -1 }).limit(1);
+      if (!topTechs || topTechs.length === 0) {
+        throw new Error("No technology found");
       }
+      return topTechs[0].technology;
     });
   }
-  getTop5CitiesForMostSearchedTech(tech) {
+  getTop5CitiesForMostSearchedTech(technology) {
     return __async(this, null, function* () {
       try {
-        const query = this.model.find({ technology: tech });
-        return this.sortAndLimit(query, "count", 5);
+        return yield this.model.find({ technology }).sort({ count: -1 }).limit(5);
       } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -161,18 +164,60 @@ var CitySearchRepository = class {
 
 // src/app/citySearch/CitySearch.ts
 var import_mongoose = require("mongoose");
-var CitySearchSchema = new import_mongoose.Schema({
-  city: { type: String, required: true },
-  technology: { type: String, required: true },
-  count: { type: Number, required: true }
-}, { timestamps: true });
+var CitySearchSchema = new import_mongoose.Schema(
+  {
+    city: { type: String, required: true },
+    technology: { type: String, required: true },
+    count: { type: Number, required: true }
+  },
+  { timestamps: true }
+);
 var CitySearch = (0, import_mongoose.model)("CitySearch", CitySearchSchema);
+
+// src/app/techSearch/TechSearchService.ts
+var TechSearchService = class {
+  constructor(techSearchRepository) {
+    this.techSearchRepository = techSearchRepository;
+  }
+  registerTechSearch(technology, city) {
+    return __async(this, null, function* () {
+      try {
+        const existingRecord = yield this.techSearchRepository.findOne({
+          technology,
+          city
+        });
+        if (existingRecord) {
+          existingRecord.count += 1;
+          yield existingRecord.save();
+        } else {
+          yield this.techSearchRepository.create({
+            technology,
+            city,
+            count: 1
+          });
+        }
+        return existingRecord;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getTopTechnologies() {
+    return __async(this, null, function* () {
+      try {
+        return yield this.techSearchRepository.getTopTechnologies();
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+};
 
 // src/app/citySearch/CitySearchModule.ts
 var CitySearchModule = class {
   static getInstance() {
     const repository = new CitySearchRepository(CitySearch);
-    const service = new CitySearchService(repository);
+    const service = new CitySearchService(repository, TechSearchService);
     const controller = new CitySearchController(service);
     return { repository, service, controller };
   }

@@ -24,11 +24,14 @@ __export(TechSearch_exports, {
 });
 module.exports = __toCommonJS(TechSearch_exports);
 var import_mongoose = require("mongoose");
-var TechSearchSchema = new import_mongoose.Schema({
-  technology: { type: String, required: true },
-  count: { type: Number, required: true },
-  city: { type: String, required: true }
-}, { timestamps: true });
+var TechSearchSchema = new import_mongoose.Schema(
+  {
+    technology: { type: String, required: true },
+    count: { type: Number, required: true },
+    city: { type: String, required: true }
+  },
+  { timestamps: true }
+);
 var TechSearch = (0, import_mongoose.model)("TechSearch", TechSearchSchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

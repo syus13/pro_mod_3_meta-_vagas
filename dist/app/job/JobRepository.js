@@ -43,7 +43,6 @@ __export(JobRepository_exports, {
   JobRepository: () => JobRepository
 });
 module.exports = __toCommonJS(JobRepository_exports);
-var import_mongoose = require("mongoose");
 
 // src/utils/CommonError.ts
 var CommonError = class {
@@ -68,15 +67,6 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/job/filterMapping.ts
-var filterMapping = {
-  technology: "technology",
-  company: "company",
-  city: "city",
-  salary: "salary",
-  position: "position"
-};
-
 // src/app/job/JobRepository.ts
 var JobRepository = class {
   constructor(model, techSearchRepository) {
@@ -92,66 +82,24 @@ var JobRepository = class {
       }
     });
   }
-  filterJobs(filters, startIndex, itemsPerPage) {
+  searchJobs(filters, page, limit) {
     return __async(this, null, function* () {
       try {
-        const query = this.model.find();
-        if (filters) {
-          Object.keys(filterMapping).forEach((filterField) => {
-            if (filters[filterField]) {
-              query.where(filterMapping[filterField]).equals(filters[filterField]);
-            }
-          });
-          query.skip(startIndex).limit(itemsPerPage);
-        }
-        const jobs = yield query.exec();
-        if (jobs.length === 0) {
-          return CommonError.build("Job not Found", STATUS_CODE.NOT_FOUND);
-        }
+        return yield this.model.find(filters).skip((page - 1) * limit).limit(limit);
       } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-  upsertTechCount(filters) {
-    return __async(this, null, function* () {
-      try {
-        const existingTech = yield this.techSearchRepository.findOne({
-          technology: filters.technology
-        });
-        if (existingTech) {
-          existingTech.count += 1;
-          yield existingTech.save();
-        } else {
-          yield this.techSearchRepository.create({
-            technology: filters.technology,
-            count: 1
-          });
-        }
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
       }
     });
   }
   favoriteJob(userId, jobId) {
     return __async(this, null, function* () {
       try {
-        const job = yield this.model.findById(jobId);
-        if (!job) {
-          return CommonError.build("Job not found", STATUS_CODE.NOT_FOUND);
-        }
-        const userIdObjectId = new import_mongoose.Types.ObjectId(userId);
-        if (job.favoritedBy.includes(userIdObjectId)) {
-          return CommonError.build("Job is already favorited by the user", STATUS_CODE.BAD_REQUEST);
-        }
-        job.favoritedBy.push(userIdObjectId);
-        yield job.save();
-        return { message: "Job favorited successfully" };
-      } catch (error) {
-        return CommonError.build(
-          error.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
+        return yield this.model.updateOne(
+          { _id: jobId },
+          { $addToSet: { favoritedBy: userId } }
         );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
       }
     });
   }

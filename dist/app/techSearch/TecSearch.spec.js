@@ -15215,17 +15215,6 @@ var index = /* @__PURE__ */ Object.freeze({
 // node_modules/vitest/dist/index.js
 var expectTypeOf = dist.expectTypeOf;
 
-// src/utils/CommonError.ts
-var CommonError = class {
-  static build(message, status) {
-    return {
-      error: true,
-      message,
-      status
-    };
-  }
-};
-
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -15238,7 +15227,18 @@ var STATUS_CODE = {
   INTERNAL_SERVER_ERROR: 500
 };
 
-// src/app/techSearch/techSearchService.ts
+// src/utils/CommonError.ts
+var CommonError = class {
+  static build(message, status) {
+    return {
+      error: true,
+      message,
+      status
+    };
+  }
+};
+
+// src/app/techSearch/TechSearchService.ts
 var TechSearchService = class {
   constructor(techSearchRepository) {
     this.techSearchRepository = techSearchRepository;
@@ -15262,54 +15262,14 @@ var TechSearchService = class {
         }
         return existingRecord;
       } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  getTopTechnologies(limit = 5) {
+  getTopTechnologies() {
     return __async(this, null, function* () {
       try {
-        return this.techSearchRepository.getTopTechnologies(limit);
-      } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
-      }
-    });
-  }
-  getTopCitiesForMostSearchedTech() {
-    return __async(this, null, function* () {
-      try {
-        return this.techSearchRepository.getTopCitiesForMostSearchedTech();
-      } catch (erro) {
-        return CommonError.build(
-          erro.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        );
-      }
-    });
-  }
-  searchTechAndCity(technology, city) {
-    return __async(this, null, function* () {
-      const count = yield this.techSearchRepository.getSearchCount(technology, city);
-      if (count !== null) {
-        yield this.techSearchRepository.incrementSearchCount(technology, city);
-        return count + 1;
-      } else {
-        yield this.techSearchRepository.createSearchCount(technology, city);
-        return 1;
-      }
-    });
-  }
-  searchTech(query, startIndex, perPage) {
-    return __async(this, null, function* () {
-      try {
-        const results = yield this.techSearchRepository.searchTech(query, startIndex, perPage);
-        return results;
+        return yield this.techSearchRepository.getTopTechnologies();
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -15318,68 +15278,64 @@ var TechSearchService = class {
 };
 
 // src/app/techSearch/TecSearch.spec.ts
-var repositoryMock = {
+var techSearchRepositoryMock = {
   findOne: vi.fn(),
   create: vi.fn(),
-  save: vi.fn(),
-  getTopTechnologies: vi.fn(),
-  getTopCitiesForMostSearchedTech: vi.fn(),
-  getSearchCount: vi.fn(),
-  incrementSearchCount: vi.fn(),
-  createSearchCount: vi.fn(),
-  searchTech: vi.fn()
+  getTopTechnologies: vi.fn()
 };
-var sut = new TechSearchService(repositoryMock);
+var sut = new TechSearchService(techSearchRepositoryMock);
 describe("TechSearchService", () => {
   describe("registerTechSearch()", () => {
     it("Should be able to register a tech search", () => __async(exports, null, function* () {
       const technologyMock = "JavaScript";
       const cityMock = "Belo Horizonte";
-      const expectMock = { technology: technologyMock, city: cityMock, count: 1 };
-      vi.spyOn(repositoryMock, "findOne").mockReturnValue(false);
-      vi.spyOn(repositoryMock, "create").mockReturnValue(expectMock);
+      const existingRecordMock = {
+        technology: technologyMock,
+        city: cityMock,
+        count: 1,
+        save: vi.fn()
+      };
+      vi.spyOn(techSearchRepositoryMock, "findOne").mockReturnValue(
+        existingRecordMock
+      );
       const result = yield sut.registerTechSearch(technologyMock, cityMock);
-      globalExpect(expectMock).toStrictEqual(expectMock);
-    }), 1e4);
-  });
-  describe("getTopTechnologies()", () => {
-    it("Should be able to get the top technologies", () => __async(exports, null, function* () {
-      const limitMock = 5;
-      const expectMock = ["JavaScript", "Python", "Java", "C#", "Ruby"];
-      vi.spyOn(repositoryMock, "getTopTechnologies").mockReturnValue(expectMock);
-      const result = yield sut.getTopTechnologies(limitMock);
-      globalExpect(result).toStrictEqual(expectMock);
-    }), 1e4);
-  });
-  describe("getTopCitiesForMostSearchedTech()", () => {
-    it("Should be able to get the top cities for most searched tech", () => __async(exports, null, function* () {
-      const expectMock = ["Belo Horizonte", "S\xE3o Paulo", "Rio de Janeiro", "Bras\xEDlia", "Recife"];
-      vi.spyOn(repositoryMock, "getTopCitiesForMostSearchedTech").mockReturnValue(expectMock);
-      const result = yield sut.getTopCitiesForMostSearchedTech();
-      globalExpect(result).toStrictEqual(expectMock);
-    }), 1e4);
-  });
-  describe("searchTechAndCity()", () => {
-    it("Should be able to search tech and city", () => __async(exports, null, function* () {
+      globalExpect(result).toStrictEqual(existingRecordMock);
+    }));
+    it("Should return error when an exception is thrown", () => __async(exports, null, function* () {
       const technologyMock = "JavaScript";
       const cityMock = "Belo Horizonte";
-      const expectMock = 1;
-      vi.spyOn(repositoryMock, "getSearchCount").mockReturnValue(null);
-      vi.spyOn(repositoryMock, "createSearchCount").mockReturnValue(expectMock);
-      const result = yield sut.searchTechAndCity(technologyMock, cityMock);
-      globalExpect(result).toStrictEqual(expectMock);
-    }), 1e4);
+      const errorMock = new Error("Error message");
+      vi.spyOn(techSearchRepositoryMock, "findOne").mockImplementation(() => {
+        throw errorMock;
+      });
+      const result = yield sut.registerTechSearch(technologyMock, cityMock);
+      globalExpect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    }));
   });
-  describe("searchTech()", () => {
-    it("Should be able to search tech", () => __async(exports, null, function* () {
-      const queryMock = { technology: "JavaScript" };
-      const startIndexMock = 0;
-      const perPageMock = 10;
-      const expectMock = [{ technology: "JavaScript", city: "Belo Horizonte", count: 1 }];
-      vi.spyOn(repositoryMock, "searchTech").mockReturnValue(expectMock);
-      const result = yield sut.searchTech(queryMock, startIndexMock, perPageMock);
-      globalExpect(result).toStrictEqual(expectMock);
-    }), 1e4);
+  describe("getTopTechnologies()", () => {
+    it("Should be able to get top technologies", () => __async(exports, null, function* () {
+      const topTechnologiesMock = ["JavaScript", "Python", "Java"];
+      vi.spyOn(techSearchRepositoryMock, "getTopTechnologies").mockReturnValue(
+        topTechnologiesMock
+      );
+      const result = yield sut.getTopTechnologies();
+      globalExpect(result).toStrictEqual(topTechnologiesMock);
+    }));
+    it("Should return error when an exception is thrown", () => __async(exports, null, function* () {
+      const errorMock = new Error("Error message");
+      vi.spyOn(
+        techSearchRepositoryMock,
+        "getTopTechnologies"
+      ).mockImplementation(() => {
+        throw errorMock;
+      });
+      const result = yield sut.getTopTechnologies();
+      globalExpect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    }));
   });
 });
 /*! Bundled license information:

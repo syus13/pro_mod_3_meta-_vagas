@@ -38396,12 +38396,16 @@ var import_express = __toESM(require_express2());
 
 // src/app/user/User.ts
 var import_mongoose = require("mongoose");
-var UserSchema = new import_mongoose.Schema({
-  name: { type: String, required: true },
-  password: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  favoritedJobs: [{ type: import_mongoose.Schema.Types.ObjectId, ref: "Job" }]
-}, { timestamps: true });
+var UserSchema = new import_mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    password: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    searchHistory: { type: [String], default: [] },
+    favoritedBy: { type: [String], default: [] }
+  },
+  { timestamps: true }
+);
 var User = (0, import_mongoose.model)("User", UserSchema);
 
 // src/utils/Validations/user/UserValidation.ts
@@ -38442,7 +38446,10 @@ var UserValidation = class {
       try {
         yield validation.validate(data);
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
       }
     });
   }
@@ -38461,7 +38468,10 @@ var UpdateValidation = class {
       try {
         yield validation.validate(data);
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
       }
     });
   }
@@ -38488,10 +38498,15 @@ var UserController = class {
   }
   update(req, res) {
     return __async(this, null, function* () {
-      const { body, params: { id } } = req;
+      const {
+        body,
+        params: { id }
+      } = req;
       const updateValidation = yield UpdateValidation.isValid(body);
       if (updateValidation && updateValidation.error) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST));
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
+        );
       }
       const result = yield this.service.update(id, body);
       if ("error" in result) {
@@ -38500,29 +38515,24 @@ var UserController = class {
       return res.status(STATUS_CODE.OK).json(result);
     });
   }
-  markJobAsFavorite(req, res) {
+  getFavoriteJobs(req, res) {
     return __async(this, null, function* () {
-      const { userId, jobId } = req.body;
-      const result = yield this.service.markJobAsFavorite(userId, jobId);
-      if ("error" in result) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+      const { userId } = req.params;
+      const resultOrError = this.service.getFavoriteJobs(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
       }
-      return res.status(STATUS_CODE.OK).json(result);
+      return res.status(STATUS_CODE.OK).json(resultOrError);
     });
   }
-  getSearchHistory(req, res) {
+  getUserSearchHistory(req, res) {
     return __async(this, null, function* () {
-      const userId = req.query.userId;
-      const page = req.query.page;
-      const perPage = req.query.perPage;
-      if (userId === void 0) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("ID invalid", STATUS_CODE.BAD_REQUEST));
+      const { userId } = req.params;
+      const resultOrError = yield this.service.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
       }
-      const history = yield this.service.getSearchHistory(userId, page, perPage);
-      if ("error" in history) {
-        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(history.message, STATUS_CODE.BAD_REQUEST));
-      }
-      return res.status(STATUS_CODE.OK).json(history);
+      return res.json(resultOrError);
     });
   }
 };
@@ -38531,6 +38541,9 @@ var UserController = class {
 var UserRepository = class {
   constructor(model2) {
     this.model = model2;
+  }
+  searchRecord(filters, jobAlreadyExists) {
+    throw new Error("Method not implemented.");
   }
   findByEmail(email) {
     return __async(this, null, function* () {
@@ -38563,6 +38576,24 @@ var UserRepository = class {
     return __async(this, null, function* () {
       try {
         return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
@@ -38603,7 +38634,10 @@ var UserService = class {
       try {
         const userAlreadyExists = yield this.repository.findById(id);
         if (!userAlreadyExists) {
-          return CommonError.build(userAlreadyExists.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
         }
         const updated = {
           name: data.name,
@@ -38616,42 +38650,31 @@ var UserService = class {
       }
     });
   }
-  markJobAsFavorite(userId, jobId) {
+  getFavoriteJobs(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return CommonError.build(user.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        if (!user.favoriteJobs.includes(jobId)) {
-          user.favoriteJobs.push(jobId);
-        }
-        const result = yield this.repository.update(userId, user);
-        if (!result) {
-          return CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-        }
-        return result;
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  getSearchHistory(userId, page, perPage) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return [];
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        const pageInt = parseInt(page, 10) || 1;
-        const perPageInt = parseInt(perPage, 10) || 10;
-        const startIndex = (pageInt - 1) * perPageInt;
-        const endIndex = pageInt * perPageInt;
-        const searchHistory = user.searchHistory.slice(startIndex, endIndex);
-        return searchHistory;
-      } catch (error) {
-        console.error(error);
-        return [];
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -38659,7 +38682,7 @@ var UserService = class {
 
 // src/app/user/UserModule.ts
 var UserModule = class {
-  static getInnstance() {
+  static getInstance() {
     const repository = new UserRepository(User);
     const service = new UserService(repository);
     const controller2 = new UserController(service);
@@ -38690,9 +38713,22 @@ var AuthMiddleware = class {
 
 // src/routes/userRoutes.ts
 var userRoutes = (0, import_express.Router)();
-var { controller } = UserModule.getInnstance();
+var { controller } = UserModule.getInstance();
 userRoutes.post("/", controller.create.bind(controller));
-userRoutes.put("/:id", AuthMiddleware.handler, controller.update.bind(controller));
+userRoutes.use(AuthMiddleware.handler);
+userRoutes.put("/:id", controller.update.bind(controller));
+userRoutes.get(
+  "/:userId/favorites",
+  controller.getFavoriteJobs.bind(controller)
+);
+userRoutes.get(
+  "/:userId/favorites",
+  controller.getFavoriteJobs.bind(controller)
+);
+userRoutes.get(
+  "/:userId/history",
+  controller.getUserSearchHistory.bind(controller)
+);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   userRoutes

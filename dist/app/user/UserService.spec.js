@@ -29864,7 +29864,10 @@ var UserService = class {
       try {
         const userAlreadyExists = yield this.repository.findById(id);
         if (!userAlreadyExists) {
-          return CommonError.build(userAlreadyExists.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
         }
         const updated = {
           name: data.name,
@@ -29877,185 +29880,113 @@ var UserService = class {
       }
     });
   }
-  markJobAsFavorite(userId, jobId) {
+  getFavoriteJobs(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return CommonError.build(user.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        if (!user.favoriteJobs.includes(jobId)) {
-          user.favoriteJobs.push(jobId);
-        }
-        const result = yield this.repository.update(userId, user);
-        if (!result) {
-          return CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-        }
-        return result;
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  getSearchHistory(userId, page, perPage) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return [];
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        const pageInt = parseInt(page, 10) || 1;
-        const perPageInt = parseInt(perPage, 10) || 10;
-        const startIndex = (pageInt - 1) * perPageInt;
-        const endIndex = pageInt * perPageInt;
-        const searchHistory = user.searchHistory.slice(startIndex, endIndex);
-        return searchHistory;
-      } catch (error) {
-        console.error(error);
-        return [];
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
 };
 
 // src/app/user/UserService.spec.ts
-var repositoryMock = {
+var userRepositoryMock = {
   findByEmail: vi.fn(),
   create: vi.fn(),
   findById: vi.fn(),
-  update: vi.fn()
+  update: vi.fn(),
+  getFavoriteJobs: vi.fn(),
+  getUserSearchHistory: vi.fn()
 };
-var sut = new UserService(repositoryMock);
+var sut = new UserService(userRepositoryMock);
 describe("UserService", () => {
-  describe("Create()", () => {
-    it("Should return error if user already exists", () => __async(exports, null, function* () {
-      const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: /* @__PURE__ */ new Date(), updatedAt: /* @__PURE__ */ new Date(), favoritedJobs: [] };
-      vi.spyOn(repositoryMock, "findByEmail").mockReturnValue({});
-      const result = yield sut.create(paramMock);
-      globalExpect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.CONFLICT));
-    }));
-    it("Should be able create a new user", () => __async(exports, null, function* () {
-      const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: /* @__PURE__ */ new Date(), updatedAt: /* @__PURE__ */ new Date(), favoritedJobs: [] };
-      const expectMock = {
-        id: "1",
-        name: "Fulaninho",
-        email: "fulano@email.com",
-        password: Crypt.encrypt("123456"),
-        createdAt: "2023-10-16T15:37:13.228Z",
-        updatedAt: "2023-10-16T15:37:13.228Z",
-        favoritedJobs: paramMock.favoritedJobs
+  describe("create()", () => {
+    it("Should be able to create a user", () => __async(exports, null, function* () {
+      const dataMock = {
+        name: "John Doe",
+        password: "Password123",
+        email: "john.doe@example.com",
+        createdAt: /* @__PURE__ */ new Date(),
+        updatedAt: /* @__PURE__ */ new Date(),
+        searchHistory: [],
+        favoritedBy: []
       };
-      vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(false);
-      vi.spyOn(repositoryMock, "create").mockReturnValue(expectMock);
-      const result = yield sut.create(paramMock);
+      const expectMock = __spreadProps(__spreadValues({}, dataMock), { id: "1" });
+      vi.spyOn(userRepositoryMock, "create").mockReturnValue(expectMock);
+      const result = yield sut.create(dataMock);
       globalExpect(result).toStrictEqual(expectMock);
     }));
   });
-  describe("Update", () => {
-    it("Should return error if user not exists", () => __async(exports, null, function* () {
-      const paramMockId = { id: "1" };
-      const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: /* @__PURE__ */ new Date(), updatedAt: /* @__PURE__ */ new Date(), favoritedJobs: [] };
-      vi.spyOn(repositoryMock, "findById").mockReturnValue(null);
-      const result = yield sut.update(paramMockId, paramMockData);
-      globalExpect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-    }));
-    it("Should be able to update data", () => __async(exports, null, function* () {
-      const paramMockId = { id: "1" };
-      const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: /* @__PURE__ */ new Date(), updatedAt: /* @__PURE__ */ new Date(), favoritedJobs: [] };
-      const expected = { name: "Fulaninho", email: "fulano@email.com", password: Crypt.encrypt("123456") };
-      vi.spyOn(repositoryMock, "findById").mockResolvedValue(true);
-      vi.spyOn(repositoryMock, "update").mockResolvedValue(expected);
-      const result = yield sut.update(paramMockId, paramMockData);
-      globalExpect(result).toStrictEqual(expected);
-    }));
-    it("Should return to handle error when doesn't get to update data", () => __async(exports, null, function* () {
-      const paramMockId = { id: "1" };
-      const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: /* @__PURE__ */ new Date(), updatedAt: /* @__PURE__ */ new Date(), favoritedJobs: [] };
-      const returnError = CommonError.build("Internal server errorr.", STATUS_CODE.INTERNAL_SERVER_ERROR);
-      vi.spyOn(repositoryMock, "findById").mockReturnValue(true);
-      vi.spyOn(repositoryMock, "update").mockRejectedValue(returnError);
-      const result = yield sut.update(paramMockId, paramMockData);
-      globalExpect(result).toStrictEqual(returnError);
+  describe("update()", () => {
+    it("Should be able to update a user", () => __async(exports, null, function* () {
+      const idMock = "1";
+      const dataMock = {
+        name: "John Doe",
+        password: "Password123",
+        email: "john.doe@example.com",
+        createdAt: /* @__PURE__ */ new Date(),
+        updatedAt: /* @__PURE__ */ new Date(),
+        searchHistory: [],
+        favoritedBy: []
+      };
+      const expectMock = __spreadProps(__spreadValues({}, dataMock), { id: idMock });
+      vi.spyOn(userRepositoryMock, "update").mockReturnValue(expectMock);
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue(__spreadValues({
+        id: idMock
+      }, dataMock));
+      const result = yield sut.update(idMock, dataMock);
+      globalExpect(result).toStrictEqual(expectMock);
     }));
   });
-});
-describe("MarkJobAsFavorite()", () => {
-  it("Should return error if user not exists", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const jobIdMock = "1";
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(null);
-    const result = yield sut.markJobAsFavorite(userIdMock, jobIdMock);
-    globalExpect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
-  }));
-  it("Should be able to mark job as favorite", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const jobIdMock = "1";
-    const userMock = { favoriteJobs: [] };
-    const expected = { favoriteJobs: [jobIdMock] };
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock);
-    vi.spyOn(repositoryMock, "update").mockReturnValue(expected);
-    const result = yield sut.markJobAsFavorite(userIdMock, jobIdMock);
-    globalExpect(result).toStrictEqual(expected);
-  }));
-  it("Should not duplicate job in favorite list", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const jobIdMock = "1";
-    const userMock = { favoriteJobs: [jobIdMock] };
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock);
-    vi.spyOn(repositoryMock, "update").mockReturnValue(userMock);
-    const result = yield sut.markJobAsFavorite(userIdMock, jobIdMock);
-    globalExpect(result).toStrictEqual(userMock);
-  }));
-  it("Should return to handle error when doesn't get to update data", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const jobIdMock = "1";
-    const userMock = { favoriteJobs: [] };
-    const returnError = CommonError.build("Internal server error", STATUS_CODE.INTERNAL_SERVER_ERROR);
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock);
-    vi.spyOn(repositoryMock, "update").mockRejectedValue(returnError);
-    const result = yield sut.markJobAsFavorite(userIdMock, jobIdMock);
-    globalExpect(result).toStrictEqual(returnError);
-  }));
-});
-describe("function getSearchHistory()", () => {
-  it("Should return empty array if user not exists", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const pageMock = "1";
-    const perPageMock = "10";
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(null);
-    const result = yield sut.getSearchHistory(userIdMock, pageMock, perPageMock);
-    globalExpect(result).toStrictEqual([]);
-  }));
-  it("Should be able to get search history", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const pageMock = "1";
-    const perPageMock = "10";
-    const userMock = { searchHistory: ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10", "search11"] };
-    const expected = ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10"];
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock);
-    const result = yield sut.getSearchHistory(userIdMock, pageMock, perPageMock);
-    globalExpect(result).toStrictEqual(expected);
-  }));
-  it("Should handle pagination correctly", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const pageMock = "2";
-    const perPageMock = "5";
-    const userMock = { searchHistory: ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10"] };
-    const expected = ["search6", "search7", "search8", "search9", "search10"];
-    vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock);
-    const result = yield sut.getSearchHistory(userIdMock, pageMock, perPageMock);
-    globalExpect(result).toStrictEqual(expected);
-  }));
-  it("Should return empty array when an error occurs", () => __async(exports, null, function* () {
-    const userIdMock = "1";
-    const pageMock = "1";
-    const perPageMock = "10";
-    vi.spyOn(repositoryMock, "findById").mockImplementation(() => {
-      throw new Error();
-    });
-    const result = yield sut.getSearchHistory(userIdMock, pageMock, perPageMock);
-    globalExpect(result).toStrictEqual([]);
-  }));
+  describe("getFavoriteJobs()", () => {
+    it("Should be able to get favorite jobs of a user", () => __async(exports, null, function* () {
+      const userIdMock = "1";
+      const expectMock = ["Job1", "Job2", "Job3"];
+      vi.spyOn(userRepositoryMock, "getFavoriteJobs").mockReturnValue(
+        expectMock
+      );
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue({
+        id: userIdMock
+      });
+      const result = yield sut.getFavoriteJobs(userIdMock);
+      globalExpect(result).toStrictEqual(expectMock);
+    }));
+  });
+  describe("getUserSearchHistory()", () => {
+    it("Should be able to get search history of a user", () => __async(exports, null, function* () {
+      const userIdMock = "1";
+      const expectMock = ["Search1", "Search2", "Search3"];
+      vi.spyOn(userRepositoryMock, "getUserSearchHistory").mockReturnValue(
+        expectMock
+      );
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue({
+        id: userIdMock
+      });
+      const result = yield sut.getUserSearchHistory(userIdMock);
+      globalExpect(result).toStrictEqual(expectMock);
+    }));
+  });
 });
 /*! Bundled license information:
 

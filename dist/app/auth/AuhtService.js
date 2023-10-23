@@ -16594,15 +16594,24 @@ var AuthService = class {
     return __async(this, null, function* () {
       const userAlreadyExists = yield this.repository.findByEmail(data.email);
       if (!userAlreadyExists) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
-      const passwordIsValid = Crypt.compare(data.password, userAlreadyExists.password);
+      const passwordIsValid = Crypt.compare(
+        data.password,
+        userAlreadyExists.password
+      );
       if (!passwordIsValid) {
-        return CommonError.build("invalid email or password ", STATUS_CODE.BAD_REQUEST);
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
       }
       const payload = __spreadValues({}, userAlreadyExists);
       const secretKey = process.env.JWT_SECRET_KEY;
-      const options = { expiresIn: "20m" };
+      const options = { expiresIn: "90m" };
       const token = import_jsonwebtoken.default.sign(payload, secretKey, options);
       return { token, user: userAlreadyExists };
     });

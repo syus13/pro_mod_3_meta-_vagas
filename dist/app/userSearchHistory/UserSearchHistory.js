@@ -17,25 +17,20 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/app/user/User.ts
-var User_exports = {};
-__export(User_exports, {
-  User: () => User
+// src/app/userSearchHistory/UserSearchHistory.ts
+var UserSearchHistory_exports = {};
+__export(UserSearchHistory_exports, {
+  UserSearchHistory: () => UserSearchHistory
 });
-module.exports = __toCommonJS(User_exports);
+module.exports = __toCommonJS(UserSearchHistory_exports);
 var import_mongoose = require("mongoose");
-var UserSchema = new import_mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    password: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    searchHistory: { type: [String], default: [] },
-    favoritedBy: { type: [String], default: [] }
-  },
-  { timestamps: true }
-);
-var User = (0, import_mongoose.model)("User", UserSchema);
+var UserSearchHistorySchema = new import_mongoose.Schema({
+  userId: { type: String, required: true },
+  searchQuery: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+var UserSearchHistory = (0, import_mongoose.model)("UserSearchHistory", UserSearchHistorySchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  User
+  UserSearchHistory
 });

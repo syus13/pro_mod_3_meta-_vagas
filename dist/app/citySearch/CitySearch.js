@@ -24,11 +24,14 @@ __export(CitySearch_exports, {
 });
 module.exports = __toCommonJS(CitySearch_exports);
 var import_mongoose = require("mongoose");
-var CitySearchSchema = new import_mongoose.Schema({
-  city: { type: String, required: true },
-  technology: { type: String, required: true },
-  count: { type: Number, required: true }
-}, { timestamps: true });
+var CitySearchSchema = new import_mongoose.Schema(
+  {
+    city: { type: String, required: true },
+    technology: { type: String, required: true },
+    count: { type: Number, required: true }
+  },
+  { timestamps: true }
+);
 var CitySearch = (0, import_mongoose.model)("CitySearch", CitySearchSchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

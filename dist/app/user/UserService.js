@@ -14723,7 +14723,10 @@ var UserService = class {
       try {
         const userAlreadyExists = yield this.repository.findById(id);
         if (!userAlreadyExists) {
-          return CommonError.build(userAlreadyExists.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
         }
         const updated = {
           name: data.name,
@@ -14736,42 +14739,31 @@ var UserService = class {
       }
     });
   }
-  markJobAsFavorite(userId, jobId) {
+  getFavoriteJobs(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return CommonError.build(user.message, STATUS_CODE.NOT_FOUND);
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        if (!user.favoriteJobs.includes(jobId)) {
-          user.favoriteJobs.push(jobId);
-        }
-        const result = yield this.repository.update(userId, user);
-        if (!result) {
-          return CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-        }
-        return result;
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
       } catch (erro) {
         return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }
-  getSearchHistory(userId, page, perPage) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
       try {
         const user = yield this.repository.findById(userId);
         if (!user) {
-          return [];
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
         }
-        const pageInt = parseInt(page, 10) || 1;
-        const perPageInt = parseInt(perPage, 10) || 10;
-        const startIndex = (pageInt - 1) * perPageInt;
-        const endIndex = pageInt * perPageInt;
-        const searchHistory = user.searchHistory.slice(startIndex, endIndex);
-        return searchHistory;
-      } catch (error) {
-        console.error(error);
-        return [];
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }

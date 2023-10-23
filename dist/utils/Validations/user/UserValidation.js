@@ -90,7 +90,10 @@ var UserValidation = class {
       try {
         yield validation.validate(data);
       } catch (erro) {
-        return CommonError.build(erro.messages, STATUS_CODE.INTERNAL_SERVER_ERROR);
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
       }
     });
   }

@@ -81,22 +81,20 @@ var CitySearchRepository = class {
       }
     });
   }
-  sortAndLimit(query, sortField, limit) {
+  getTopTechnology() {
     return __async(this, null, function* () {
-      try {
-        return query.sort({ [sortField]: -1 }).limit(limit);
-      } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      const topTechs = yield this.model.find().sort({ count: -1 }).limit(1);
+      if (!topTechs || topTechs.length === 0) {
+        throw new Error("No technology found");
       }
+      return topTechs[0].technology;
     });
   }
-  getTop5CitiesForMostSearchedTech(tech) {
+  getTop5CitiesForMostSearchedTech(technology) {
     return __async(this, null, function* () {
       try {
-        const query = this.model.find({ technology: tech });
-        return this.sortAndLimit(query, "count", 5);
+        return yield this.model.find({ technology }).sort({ count: -1 }).limit(5);
       } catch (erro) {
-        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     });
   }

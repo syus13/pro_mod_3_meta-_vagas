@@ -22006,6 +22006,15 @@ __export(userSearchHistoryRoutes_exports, {
 module.exports = __toCommonJS(userSearchHistoryRoutes_exports);
 var import_express = __toESM(require_express2());
 
+// src/app/userSearchHistory/UserSearchHistory.ts
+var import_mongoose = require("mongoose");
+var UserSearchHistorySchema = new import_mongoose.Schema({
+  userId: { type: String, required: true },
+  searchQuery: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+var UserSearchHistory = (0, import_mongoose.model)("UserSearchHistory", UserSearchHistorySchema);
+
 // src/utils/statusCode.ts
 var STATUS_CODE = {
   OK: 200,
@@ -22029,82 +22038,77 @@ var CommonError = class {
   }
 };
 
-// src/app/userHistory/UserSearchHistoryController.ts
+// src/app/userSearchHistory/UserSearchHistoryController.ts
 var UserSearchHistoryController = class {
   constructor(userSearchHistoryService) {
     this.userSearchHistoryService = userSearchHistoryService;
   }
-  addSearchHistory(req, res) {
+  getUserSearchHistory(req, res) {
     return __async(this, null, function* () {
-      const { userId, searchQuery } = req.body;
-      try {
-        const history2 = yield this.userSearchHistoryService.addSearchHistory(
-          userId,
-          searchQuery
+      const { userId } = req.params;
+      const resultOrError = yield this.userSearchHistoryService.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            resultOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
         );
-        return res.status(STATUS_CODE.OK).json(history2);
-      } catch (erro) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
       }
+      return res.json(resultOrError);
     });
   }
-  getLastSearches(req, res) {
+};
+
+// src/app/userSearchHistory/UserSearchHistoryRepository .ts
+var UserSearchHistoryRepository = class {
+  constructor(model2) {
+    this.model = model2;
+  }
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
-      const userId = req.params.userId;
       try {
-        const searches = yield this.userSearchHistoryService.getLastSearches(
-          userId
-        );
-        return res.status(STATUS_CODE.OK).json(history);
+        return yield this.model.find({ userId }).sort({ timestamp: -1 });
       } catch (erro) {
-        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR));
+        throw new Error(`Failed to get user search history: ${erro.message}`);
       }
     });
   }
 };
 
-// src/app/userHistory/UserSearchHistory.ts
-var import_mongoose = require("mongoose");
-var UserSearchHistorySchema = new import_mongoose.Schema({
-  userId: { type: String, required: true },
-  searchQuery: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
-});
-var UserSearchHistory = (0, import_mongoose.model)("UserSearchHistory", UserSearchHistorySchema);
-
-// src/app/userHistory/UserSearchHistoryService.ts
+// src/app/userSearchHistory/UserSearchHistoryService.ts
 var UserSearchHistoryService = class {
-  addSearchHistory(userId, searchQuery) {
-    return __async(this, null, function* () {
-      const history2 = new UserSearchHistory({
-        userId,
-        searchQuery
-      });
-      yield history2.save();
-      return history2;
-    });
+  constructor(repository) {
+    this.repository = repository;
   }
-  getLastSearches(userId, limit = 10) {
+  getUserSearchHistory(userId) {
     return __async(this, null, function* () {
-      return UserSearchHistory.find({ userId }).sort({ timestamp: -1 }).limit(limit);
+      try {
+        return yield this.repository.getUserSearchHistory(userId);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
     });
   }
 };
 
-// src/app/userHistory/UserSearchHistoryModule.ts
+// src/app/userSearchHistory/UserSearchHistoryModule.ts
 var UserSearchHistoryModule = class {
   static getInstance() {
-    const service = new UserSearchHistoryService();
+    const repository = new UserSearchHistoryRepository(UserSearchHistory);
+    const service = new UserSearchHistoryService(repository);
     const controller2 = new UserSearchHistoryController(service);
-    return { service, controller: controller2 };
+    return { repository, service, controller: controller2 };
   }
 };
 
 // src/routes/userSearchHistoryRoutes.ts
 var userSearchHistoryRoutes = (0, import_express.Router)();
 var { controller } = UserSearchHistoryModule.getInstance();
-userSearchHistoryRoutes.post("/add", controller.addSearchHistory);
-userSearchHistoryRoutes.get("/lastSearches/:userId", controller.getLastSearches);
+userSearchHistoryRoutes.get(
+  "/:userId/history",
+  controller.getUserSearchHistory.bind(controller)
+);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   userSearchHistoryRoutes

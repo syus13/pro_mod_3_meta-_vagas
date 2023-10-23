@@ -11,7 +11,7 @@ techSearchRoutes.post(
   techSearchController.registerTechSearch.bind(techSearchController)
 );
 techSearchRoutes.get(
-  "/top5Technologies",
+  "/topTechnologies",
   techSearchController.getTopTechnologies.bind(techSearchController)
 );
 

@@ -23,7 +23,7 @@ Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores
 ### 💼 Vagas 💼
 
 - Criar uma nova vaga (POST): `http://localhost:3333/jobs`
-- Filtrar vagas (POST): `http://localhost:3333/jobs/filter`
+- Buscar vagas vagas (GET): `http://localhost:3333/jobs/filter`
 - Marcar vaga como favorita (POST): `http://localhost:3333/jobs/favorite/:id`
 
 ### 💻 Pesquisa de Tecnologia 💻
@@ -33,7 +33,7 @@ Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores
 - Obter as principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3333/techSearch/topCitiesForMostSearchedTech`
 - Pesquisar tecnologia e cidade (GET): `http://localhost:3333/techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>`
 - Obter resultados de pesquisa de tecnologia (GET): `http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>`
-- Obter as 5 principais tecnologias pesquisadas (GET): `http://localhost:3333/techSearch/top5`
+
 
 ### 🏙️ Pesquisa de Cidade 🏙️
 

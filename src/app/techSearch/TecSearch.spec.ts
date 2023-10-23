@@ -1,118 +1,77 @@
-import { describe, it, vi, expect } from "vitest"
-import { TechSearchService } from "./TechSearchService"
-import { CommonError } from "../../utils/CommonError"
-import { STATUS_CODE } from "../../utils/statusCode"
+import { describe, it, expect, vi } from "vitest";
+import { STATUS_CODE } from "../../utils/statusCode";
+import { CommonError } from "../../utils/CommonError";
+import { TechSearchService } from "./TechSearchService";
 
-const repositoryMock = { 
-    findOne: vi.fn(), 
-    create: vi.fn(),
-    save: vi.fn(),
-    getTopTechnologies: vi.fn(),
-    getTopCitiesForMostSearchedTech: vi.fn(),
-    getSearchCount: vi.fn(),
-    incrementSearchCount: vi.fn(),
-    createSearchCount: vi.fn(),
-    searchTech: vi.fn()
-}
-
-const sut = new TechSearchService(repositoryMock)
+const techSearchRepositoryMock = {
+  findOne: vi.fn(),
+  create: vi.fn(),
+  getTopTechnologies: vi.fn(),
+};
+const sut = new TechSearchService(techSearchRepositoryMock);
 
 describe("TechSearchService", () => {
-    describe("registerTechSearch()", () => {
-        it("Should be able to register a tech search", async () => {
-            const technologyMock = "JavaScript"
-            const cityMock = "Belo Horizonte"
-            const expectMock = { technology: technologyMock, city: cityMock, count: 1 }
-            vi.spyOn(repositoryMock, "findOne").mockReturnValue(false)
-            vi.spyOn(repositoryMock, "create").mockReturnValue(expectMock)
+  describe("registerTechSearch()", () => {
+    it("Should be able to register a tech search", async () => {
+      const technologyMock = "JavaScript";
+      const cityMock = "Belo Horizonte";
+      const existingRecordMock = {
+        technology: technologyMock,
+        city: cityMock,
+        count: 1,
+        save: vi.fn(),
+      };
+      vi.spyOn(techSearchRepositoryMock, "findOne").mockReturnValue(
+        existingRecordMock
+      );
 
-            const result = await sut.registerTechSearch(technologyMock, cityMock)
+      const result = await sut.registerTechSearch(technologyMock, cityMock);
 
-            expect(expectMock).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual(existingRecordMock);
+    });
 
-    describe("getTopTechnologies()", () => {
-        it("Should be able to get the top technologies", async () => {
-            const limitMock = 5
-            const expectMock = ["JavaScript", "Python", "Java", "C#", "Ruby"]
-            vi.spyOn(repositoryMock, "getTopTechnologies").mockReturnValue(expectMock)
+    it("Should return error when an exception is thrown", async () => {
+      const technologyMock = "JavaScript";
+      const cityMock = "Belo Horizonte";
+      const errorMock = new Error("Error message");
+      vi.spyOn(techSearchRepositoryMock, "findOne").mockImplementation(() => {
+        throw errorMock;
+      });
 
-            const result = await sut.getTopTechnologies(limitMock)
+      const result = await sut.registerTechSearch(technologyMock, cityMock);
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    });
+  });
 
-    describe("getTopCitiesForMostSearchedTech()", () => {
-        it("Should be able to get the top cities for most searched tech", async () => {
-            const expectMock = ["Belo Horizonte", "São Paulo", "Rio de Janeiro", "Brasília", "Recife"]
-            vi.spyOn(repositoryMock, "getTopCitiesForMostSearchedTech").mockReturnValue(expectMock)
+  describe("getTopTechnologies()", () => {
+    it("Should be able to get top technologies", async () => {
+      const topTechnologiesMock = ["JavaScript", "Python", "Java"];
+      vi.spyOn(techSearchRepositoryMock, "getTopTechnologies").mockReturnValue(
+        topTechnologiesMock
+      );
 
-            const result = await sut.getTopCitiesForMostSearchedTech()
+      const result = await sut.getTopTechnologies();
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual(topTechnologiesMock);
+    });
 
-    describe("searchTechAndCity()", () => {
-        it("Should be able to search tech and city", async () => {
-            const technologyMock = "JavaScript"
-            const cityMock = "Belo Horizonte"
-            const expectMock = 1
-            vi.spyOn(repositoryMock, "getSearchCount").mockReturnValue(null)
-            vi.spyOn(repositoryMock, "createSearchCount").mockReturnValue(expectMock)
+    it("Should return error when an exception is thrown", async () => {
+      const errorMock = new Error("Error message");
+      vi.spyOn(
+        techSearchRepositoryMock,
+        "getTopTechnologies"
+      ).mockImplementation(() => {
+        throw errorMock;
+      });
 
-            const result = await sut.searchTechAndCity(technologyMock, cityMock)
+      const result = await sut.getTopTechnologies();
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
-
-    describe("searchTech()", () => {
-        it("Should be able to search tech", async () => {
-            const queryMock = { technology: "JavaScript" }
-            const startIndexMock = 0
-            const perPageMock = 10
-            const expectMock = [{ technology: "JavaScript", city: "Belo Horizonte", count: 1 }]
-            vi.spyOn(repositoryMock, "searchTech").mockReturnValue(expectMock)
-
-            const result = await sut.searchTech(queryMock, startIndexMock, perPageMock)
-
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
-
-    describe("searchTech()", () => {
-        it("Should be able to search tech", async () => {
-            const queryMock = { technology: "JavaScript" }
-            const startIndexMock = 0
-            const perPageMock = 10
-            const expectMock = [{ technology: "JavaScript", city: "Belo Horizonte", count: 1 }]
-            vi.spyOn(repositoryMock, "searchTech").mockReturnValue(expectMock)
-
-            const result = await sut.searchTech(queryMock, startIndexMock, perPageMock)
-
-            expect(result).toStrictEqual(expectMock)
-        })
-
-        it("Should return an error when the search fails", async () => {
-            const queryMock = { technology: "JavaScript" }
-            const startIndexMock = 0
-            const perPageMock = 10
-            vi.spyOn(repositoryMock, "searchTech").mockImplementation(() => {
-                throw new Error("Error searching technology")
-            })
-
-            try {
-                await sut.searchTech(queryMock, startIndexMock, perPageMock)
-            } catch (erro: any) {
-                expect(erro).toBeInstanceOf(CommonError)
-                expect(erro.statusCode).toEqual(STATUS_CODE.INTERNAL_SERVER_ERROR)
-                expect(erro.message).toEqual("Error searching technology")
-            }
-        })
-    })
-    
-    
-})
+      expect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    });
+  });
+});

@@ -62,6 +62,11 @@ As seguintes dependências foram instaladas para este projeto:
 
 ## 👾 Teste a API! 👾
 
-Nós convidamos você a testar a nossa API! Sinta-se à vontade para fazer requisições e explorar todas as funcionalidades que temos a oferecer. Se você encontrar algum erro ou tiver alguma sugestão, por favor, nos avise!
+Convido você a testar esta API! Sinta-se à vontade para fazer requisições e explorar todas as funcionalidades que tenho a oferecer. Se você encontrar algum erro ou tiver alguma sugestão, por favor, me avise!
+
+
+## ©️ Licença ©️
+
+MIT
 
 

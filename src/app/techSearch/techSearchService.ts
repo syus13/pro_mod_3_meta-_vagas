@@ -23,58 +23,19 @@ class TechSearchService {
         });
       }
 
-      return existingRecord
-
-      } catch (erro: any) {
-      return CommonError.build(
-        erro.message,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async getTopTechnologies(limit: number = 5) {
-    try {
-      return this.techSearchRepository.getTopTechnologies(limit);
-    } catch (erro: any) {
-      return CommonError.build(
-        erro.message,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  async getTopCitiesForMostSearchedTech() {
-    try {
-      return this.techSearchRepository.getTopCitiesForMostSearchedTech();
-    } catch (erro: any) {
-      return CommonError.build(
-        erro.message,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-  async searchTechAndCity(technology: string, city: string) {
-    const count = await this.techSearchRepository.getSearchCount(technology, city);
-
-    if (count !== null) {
-      await this.techSearchRepository.incrementSearchCount(technology, city);
-      return count + 1;
-    } else {
-      await this.techSearchRepository.createSearchCount(technology, city);
-      return 1;
-    }
-  }
-
-  async searchTech(query: any, startIndex: number, perPage: number) {
-    try {
-      const results = await this.techSearchRepository.searchTech(query, startIndex, perPage);
-      return results;
+      return existingRecord;
     } catch (erro: any) {
       return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
+  async getTopTechnologies() {
+    try {
+      return await this.techSearchRepository.getTopTechnologies();
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
 
 export { TechSearchService };

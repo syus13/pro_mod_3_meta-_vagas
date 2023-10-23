@@ -1,46 +1,87 @@
-import { describe, it, vi, expect } from "vitest"
-import { CitySearchService } from "./CitySearchService"
-import { CommonError } from "../../utils/CommonError"
-import { STATUS_CODE } from "../../utils/statusCode"
+import { describe, it, expect, vi } from "vitest";
+import { STATUS_CODE } from "../../utils/statusCode";
+import { CommonError } from "../../utils/CommonError";
+import { CitySearchService } from "./CitySearchService";
 
-const repositoryMock = { 
-    find: vi.fn().mockImplementation(() => {
-        return [
-            { name: 'Belo Horizonte', count: 5 },
-            { name: 'São Paulo', count: 4 },
-            { name: 'Rio de Janeiro', count: 3 },
-            { name: 'Brasília', count: 2 },
-            { name: 'Recife', count: 1 },
-        ];
-    }), 
-}
-
-const techSearchServiceMock = {
-    getTop5Technologies: vi.fn(),
-}
-
-const sut = new CitySearchService(repositoryMock, techSearchServiceMock)
+const citySearchRepositoryMock = {
+  find: vi.fn(),
+  getTopTechnology: vi.fn(),
+  getTopCitiesForTechnology: vi.fn(),
+};
+const techSearchServiceMock = {};
+const sut = new CitySearchService(
+  citySearchRepositoryMock,
+  techSearchServiceMock
+);
 
 describe("CitySearchService", () => {
-    describe("getTop5Cities()", () => {
-        it("Should be able to get the top 5 cities", async () => {
-            const expectMock = ["Belo Horizonte", "São Paulo", "Rio de Janeiro", "Brasília", "Recife"]
+  describe("function getTop5Cities()", () => {
+    it("Should return top 5 cities", async () => {
+      const citiesMock = [
+        { name: "City1", count: 5 },
+        { name: "City2", count: 4 },
+        { name: "City3", count: 3 },
+        { name: "City4", count: 2 },
+        { name: "City5", count: 1 },
+        { name: "City6", count: 0 },
+      ];
+      vi.spyOn(citySearchRepositoryMock, "find").mockReturnValue(citiesMock);
 
-            const result = await sut.getTop5Cities()
+      const result = await sut.getTop5Cities();
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual([
+        "City1",
+        "City2",
+        "City3",
+        "City4",
+        "City5",
+      ]);
+    });
 
-    describe("getTop5CitiesForMostSearchedTech()", () => {
-        it("Should be able to get the top 5 cities for most searched tech", async () => {
-            const topTechnologyMock = "JavaScript"
-            const expectMock = ["Belo Horizonte", "São Paulo", "Rio de Janeiro", "Brasília", "Recife"]
-            vi.spyOn(techSearchServiceMock, "getTop5Technologies").mockReturnValue(topTechnologyMock)
+    it("Should return error when an exception is thrown", async () => {
+      const errorMock = new Error("Error message");
+      vi.spyOn(citySearchRepositoryMock, "find").mockImplementation(() => {
+        throw errorMock;
+      });
 
-            const result = await sut.getTop5CitiesForMostSearchedTech()
+      const result = await sut.getTop5Cities();
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
-})
+      expect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    });
+  });
+
+  describe("function getTop5CitiesForMostSearchedTech()", () => {
+    it("Should return top 5 cities for most searched tech", async () => {
+      const topTechMock = "Tech1";
+      const topCitiesMock = ["City1", "City2", "City3", "City4", "City5"];
+      vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockReturnValue(
+        topTechMock
+      );
+      vi.spyOn(
+        citySearchRepositoryMock,
+        "getTopCitiesForTechnology"
+      ).mockReturnValue(topCitiesMock);
+
+      const result = await sut.getTop5CitiesForMostSearchedTech();
+
+      expect(result).toStrictEqual(topCitiesMock);
+    });
+
+    it("Should return error when an exception is thrown", async () => {
+      const errorMock = new Error("Error message");
+      vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockImplementation(
+        () => {
+          throw errorMock;
+        }
+      );
+
+      const result = await sut.getTop5CitiesForMostSearchedTech();
+
+      expect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    });
+  });
+});

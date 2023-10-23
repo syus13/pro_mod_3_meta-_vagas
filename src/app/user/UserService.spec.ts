@@ -1,185 +1,95 @@
-import { describe, it, vi, expect } from "vitest"
-import { UserService } from "./UserService"
-import { CommonError } from "../../utils/CommonError"
-import { STATUS_CODE } from "../../utils/statusCode"
-import { Crypt } from "../../utils/Crypt"
+import { describe, it, expect, vi } from "vitest";
+import { STATUS_CODE } from "../../utils/statusCode";
+import { CommonError } from "../../utils/CommonError";
+import { UserService } from "./UserService";
 
-const repositoryMock = { 
-    findByEmail: vi.fn(), 
-    create: vi.fn(), 
-    findById: vi.fn(), 
-    update: vi.fn()
-}
-
-const sut = new UserService(repositoryMock)
+const userRepositoryMock = {
+  findByEmail: vi.fn(),
+  create: vi.fn(),
+  findById: vi.fn(),
+  update: vi.fn(),
+  getFavoriteJobs: vi.fn(),
+  getUserSearchHistory: vi.fn(),
+};
+const sut = new UserService(userRepositoryMock);
 
 describe("UserService", () => {
-    describe("Create()", () => {
-        it("Should return error if user already exists", async () => {
-            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date()  }
-            vi.spyOn(repositoryMock, "findByEmail").mockReturnValue({})
+  describe("create()", () => {
+    it("Should be able to create a user", async () => {
+      const dataMock = {
+        name: "John Doe",
+        password: "Password123",
+        email: "john.doe@example.com",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        searchHistory: [],
+        favoritedBy: [],
+      };
+      const expectMock = { ...dataMock, id: "1" };
+      vi.spyOn(userRepositoryMock, "create").mockReturnValue(expectMock);
 
-            const result = await sut.create(paramMock)
+      const result = await sut.create(dataMock);
 
-            expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.CONFLICT))
-        })
+      expect(result).toStrictEqual(expectMock);
+    });
+  });
 
-        it("Should be able create a new user", async () => {
-            const paramMock = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
-            const expectMock = {
-                id: "1",
-                name: "Fulaninho",
-                email: "fulano@email.com",
-                password: Crypt.encrypt("123456"),
-                createdAt: "2023-10-16T15:37:13.228Z",
-                updatedAt: "2023-10-16T15:37:13.228Z",
-               
-            }
-            vi.spyOn(repositoryMock, "findByEmail").mockReturnValue(false)
-            vi.spyOn(repositoryMock, "create").mockReturnValue(expectMock)
+  describe("update()", () => {
+    it("Should be able to update a user", async () => {
+      const idMock = "1";
+      const dataMock = {
+        name: "John Doe",
+        password: "Password123",
+        email: "john.doe@example.com",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        searchHistory: [],
+        favoritedBy: [],
+      };
+      const expectMock = { ...dataMock, id: idMock };
+      vi.spyOn(userRepositoryMock, "update").mockReturnValue(expectMock);
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue({
+        id: idMock,
+        ...dataMock,
+      });
 
-            const result = await sut.create(paramMock)
+      const result = await sut.update(idMock, dataMock);
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual(expectMock);
+    });
+  });
 
-    describe("Update", () => {
-        it("Should return error if user not exists", async () => {
-            const paramMockId = { id: "1" }
-            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
-            vi.spyOn(repositoryMock, "findById").mockReturnValue(null)
+  describe("getFavoriteJobs()", () => {
+    it("Should be able to get favorite jobs of a user", async () => {
+      const userIdMock = "1";
+      const expectMock = ["Job1", "Job2", "Job3"];
+      vi.spyOn(userRepositoryMock, "getFavoriteJobs").mockReturnValue(
+        expectMock
+      );
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue({
+        id: userIdMock,
+      });
 
-            const result = await sut.update(paramMockId as any as string, paramMockData)
+      const result = await sut.getFavoriteJobs(userIdMock);
 
-            expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR))
-        })
+      expect(result).toStrictEqual(expectMock);
+    });
+  });
 
-        it("Should be able to update data", async () => {
-            const paramMockId = {id: "1"}
-            const paramMockData = {name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date()}
-            const expected = {name: "Fulaninho", email: "fulano@email.com", password: Crypt.encrypt("123456")}
-            vi.spyOn(repositoryMock, "findById").mockResolvedValue(true)
-            vi.spyOn(repositoryMock, "update").mockResolvedValue(expected)
-            
-            const result = await sut.update(paramMockId as any as string, paramMockData)
-            
-            expect(result).toStrictEqual(expected)
-        })
+  describe("getUserSearchHistory()", () => {
+    it("Should be able to get search history of a user", async () => {
+      const userIdMock = "1";
+      const expectMock = ["Search1", "Search2", "Search3"];
+      vi.spyOn(userRepositoryMock, "getUserSearchHistory").mockReturnValue(
+        expectMock
+      );
+      vi.spyOn(userRepositoryMock, "findById").mockReturnValue({
+        id: userIdMock,
+      });
 
-        it("Should return to handle error when doesn't get to update data", async () => {
-            const paramMockId = { id: "1" }
-            const paramMockData = { name: "Fulaninho", email: "fulano@email.com", password: "123456", createdAt: new Date(), updatedAt: new Date() }
-            const returnError = CommonError.build("Internal server errorr.", STATUS_CODE.INTERNAL_SERVER_ERROR)
-            vi.spyOn(repositoryMock, "findById").mockReturnValue(true)
-            vi.spyOn(repositoryMock, "update").mockRejectedValue(returnError)
+      const result = await sut.getUserSearchHistory(userIdMock);
 
-            const result = await sut.update(paramMockId as any as string, paramMockData)
-
-            expect(result).toStrictEqual(returnError)
-        })
-    })
-})
-
-describe("MarkJobAsFavorite()", () => {
-    it("Should return error if user not exists", async () => {
-        const userIdMock = "1"
-        const jobIdMock = "1"
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(null)
-
-        const result = await sut.markJobAsFavorite(userIdMock, jobIdMock)
-
-        expect(result).toStrictEqual(CommonError.build(result.message, STATUS_CODE.INTERNAL_SERVER_ERROR))
-    })
-
-    it("Should be able to mark job as favorite", async () => {
-        const userIdMock = "1"
-        const jobIdMock = "1"
-        const userMock = { favoriteJobs: [] }
-        const expected = { favoriteJobs: [jobIdMock] }
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock)
-        vi.spyOn(repositoryMock, "update").mockReturnValue(expected)
-
-        const result = await sut.markJobAsFavorite(userIdMock, jobIdMock)
-
-        expect(result).toStrictEqual(expected)
-    })
-
-    it("Should not duplicate job in favorite list", async () => {
-        const userIdMock = "1"
-        const jobIdMock = "1"
-        const userMock = { favoriteJobs: [jobIdMock] }
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock)
-        vi.spyOn(repositoryMock, "update").mockReturnValue(userMock)
-
-        const result = await sut.markJobAsFavorite(userIdMock, jobIdMock)
-
-        expect(result).toStrictEqual(userMock)
-    })
-
-    it("Should return to handle error when doesn't get to update data", async () => {
-        const userIdMock = "1"
-        const jobIdMock = "1"
-        const userMock = { favoriteJobs: [] }
-        const returnError = CommonError.build("Internal server error", STATUS_CODE.INTERNAL_SERVER_ERROR)
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock)
-        vi.spyOn(repositoryMock, "update").mockRejectedValue(returnError)
-
-        const result = await sut.markJobAsFavorite(userIdMock, jobIdMock)
-
-        expect(result).toStrictEqual(returnError)
-    })
-})
-
-describe("function getSearchHistory()", () => {
-    it("Should return empty array if user not exists", async () => {
-        const userIdMock = "1"
-        const pageMock = "1"
-        const perPageMock = "10"
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(null)
-
-        const result = await sut.getSearchHistory(userIdMock, pageMock, perPageMock)
-
-        expect(result).toStrictEqual([])
-    })
-
-    it("Should be able to get search history", async () => {
-        const userIdMock = "1"
-        const pageMock = "1"
-        const perPageMock = "10"
-        const userMock = { searchHistory: ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10", "search11"] }
-        const expected = ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10"]
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock)
-
-        const result = await sut.getSearchHistory(userIdMock, pageMock, perPageMock)
-
-        expect(result).toStrictEqual(expected)
-    })
-
-    it("Should handle pagination correctly", async () => {
-        const userIdMock = "1"
-        const pageMock = "2"
-        const perPageMock = "5"
-        const userMock = { searchHistory: ["search1", "search2", "search3", "search4", "search5", "search6", "search7", "search8", "search9", "search10"] }
-        const expected = ["search6", "search7", "search8", "search9", "search10"]
-        vi.spyOn(repositoryMock, "findById").mockReturnValue(userMock)
-
-        const result = await sut.getSearchHistory(userIdMock, pageMock, perPageMock)
-
-        expect(result).toStrictEqual(expected)
-    })
-
-    it("Should return empty array when an error occurs", async () => {
-        const userIdMock = "1"
-        const pageMock = "1"
-        const perPageMock = "10"
-        vi.spyOn(repositoryMock, "findById").mockImplementation(() => { throw new Error() })
-
-        const result = await sut.getSearchHistory(userIdMock, pageMock, perPageMock)
-
-        expect(result).toStrictEqual([])
-    })
-})
-
-
-
+      expect(result).toStrictEqual(expectMock);
+    });
+  });
+});

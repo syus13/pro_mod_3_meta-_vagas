@@ -1,12 +1,24 @@
-import {Router} from 'express'
-import { UserModule } from '../app/user/UserModule'
-import { AuthMiddleware } from '../app/middleware/AuthMiddleware'
+import { Router } from "express";
+import { UserModule } from "../app/user/UserModule";
+import { AuthMiddleware } from "../app/middleware/AuthMiddleware";
 
+const userRoutes = Router();
+const { controller } = UserModule.getInstance();
 
-const userRoutes = Router()
-const {controller} = UserModule.getInnstance()
+userRoutes.post("/", controller.create.bind(controller));
+userRoutes.use(AuthMiddleware.handler);
+userRoutes.put("/:id", controller.update.bind(controller));
+userRoutes.get(
+  "/:userId/favorites",
+  controller.getFavoriteJobs.bind(controller)
+);
+userRoutes.get(
+  "/:userId/favorites",
+  controller.getFavoriteJobs.bind(controller)
+);
+userRoutes.get(
+  "/:userId/history",
+  controller.getUserSearchHistory.bind(controller)
+);
 
-userRoutes.post("/", controller.create.bind(controller))
-userRoutes.put("/:id", AuthMiddleware.handler,controller.update.bind(controller))
-
-export {userRoutes}
+export { userRoutes };

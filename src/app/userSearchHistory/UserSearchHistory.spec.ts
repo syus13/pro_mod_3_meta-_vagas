@@ -1,47 +1,44 @@
-import { describe, it, vi, expect } from "vitest"
-import { UserSearchHistoryService } from "./UserSearchHistoryService"
-import { UserSearchHistory } from "./UserSearchHistory"
+import { describe, it, expect, vi } from "vitest";
+import { STATUS_CODE } from "../../utils/statusCode";
+import { CommonError } from "../../utils/CommonError";
+import { UserSearchHistoryService } from "./UserSearchHistoryService";
 
-const repositoryMock = { 
-    save: vi.fn(), 
-    find: vi.fn()
-}
-
-const sut = new UserSearchHistoryService()
+const userSearchHistoryRepositoryMock = {
+  getUserSearchHistory: vi.fn(),
+  model: { find: vi.fn() },
+};
+const sut = new UserSearchHistoryService(userSearchHistoryRepositoryMock);
 
 describe("UserSearchHistoryService", () => {
-    describe("addSearchHistory()", () => {
-        it("Should be able to add a search history", async () => {
-            const userIdMock = "1"
-            const searchQueryMock = "test query"
-            const expectMock = new UserSearchHistory({
-                userId: userIdMock,
-                searchQuery: searchQueryMock,
-            })
-            vi.spyOn(repositoryMock, "save").mockReturnValue(expectMock)
+  describe("getUserSearchHistory()", () => {
+    it("Should be able to get search history of a user", async () => {
+      const userIdMock = "1";
+      const expectMock = ["Search1", "Search2", "Search3"];
+      vi.spyOn(
+        userSearchHistoryRepositoryMock,
+        "getUserSearchHistory"
+      ).mockReturnValue(expectMock);
 
-            const result = await sut.addSearchHistory(userIdMock, searchQueryMock)
+      const result = await sut.getUserSearchHistory(userIdMock);
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
+      expect(result).toStrictEqual(expectMock);
+    });
 
-    describe("getLastSearches()", () => {
-        it("Should be able to get the last searches", async () => {
-            const userIdMock = "1"
-            const limitMock = 5
-            const expectMock = [
-                new UserSearchHistory({userId: userIdMock, searchQuery: "query 1"}),
-                new UserSearchHistory({userId: userIdMock, searchQuery: "query 2"}),
-                new UserSearchHistory({userId: userIdMock, searchQuery: "query 3"}),
-                new UserSearchHistory({userId: userIdMock, searchQuery: "query 4"}),
-                new UserSearchHistory({userId: userIdMock, searchQuery: "query 5"}),
-            ]
-            vi.spyOn(repositoryMock, "find").mockReturnValue(expectMock)
+    it("Should return error when an exception is thrown", async () => {
+      const userIdMock = "1";
+      const errorMock = new Error("Error message");
+      vi.spyOn(
+        userSearchHistoryRepositoryMock,
+        "getUserSearchHistory"
+      ).mockImplementation(() => {
+        throw errorMock;
+      });
 
-            const result = await sut.getLastSearches(userIdMock, limitMock)
+      const result = await sut.getUserSearchHistory(userIdMock);
 
-            expect(result).toStrictEqual(expectMock)
-        })
-    })
-})
+      expect(result).toStrictEqual(
+        CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+      );
+    });
+  });
+});

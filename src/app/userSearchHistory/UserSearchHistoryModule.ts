@@ -1,12 +1,15 @@
-import { UserSearchHistoryController } from './UserSearchHistoryController';
-import { UserSearchHistoryService } from './UserSearchHistoryService';
+import { UserSearchHistory } from "./UserSearchHistory";
+import { UserSearchHistoryController } from "./UserSearchHistoryController";
+import { UserSearchHistoryRepository } from "./UserSearchHistoryRepository ";
+import { UserSearchHistoryService } from "./UserSearchHistoryService";
 
 class UserSearchHistoryModule {
   static getInstance() {
-    const service = new UserSearchHistoryService();
-    const controller = new UserSearchHistoryController(service)
-        
-    return { service, controller };
+    const repository = new UserSearchHistoryRepository(UserSearchHistory);
+    const service = new UserSearchHistoryService(repository);
+    const controller = new UserSearchHistoryController(service);
+
+    return { repository, service, controller };
   }
 }
 

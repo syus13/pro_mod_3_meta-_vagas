@@ -8,7 +8,11 @@ import { TechSearchRepository } from "../techSearch/TechSearchRepository";
 class JobModule {
   static getInstance() {
     const repository = new JobRepository(Job, TechSearchRepository);
-    const service = new JobService(repository, TechSearchRepository, UserRepository);
+    const service = new JobService(
+      repository,
+      TechSearchRepository,
+      UserRepository
+    );
     const controller = new JobController(service);
 
     return { repository, service, controller };

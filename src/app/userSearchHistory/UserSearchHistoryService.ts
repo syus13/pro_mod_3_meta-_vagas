@@ -1,20 +1,16 @@
-import { UserSearchHistory } from './UserSearchHistory';
+import { CommonError } from "../../utils/CommonError";
+import { STATUS_CODE } from "../../utils/statusCode";
+import { UserSearchHistoryRepository } from "./UserSearchHistoryRepository ";
 
 class UserSearchHistoryService {
-  async addSearchHistory(userId: string, searchQuery: string) {
-    const history = new UserSearchHistory({
-      userId,
-      searchQuery,
-    });
+  constructor(private repository: UserSearchHistoryRepository) {}
 
-    await history.save();
-    return history;
-  }
-
-  async getLastSearches(userId: string, limit: number = 10) {
-    return UserSearchHistory.find({ userId })
-      .sort({ timestamp: -1 })
-      .limit(limit);
+  async getUserSearchHistory(userId: string) {
+    try {
+      return await this.repository.getUserSearchHistory(userId);
+    } catch (erro: any) {
+      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
   }
 }
 

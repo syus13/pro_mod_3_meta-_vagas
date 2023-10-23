@@ -9,7 +9,7 @@ import { routes } from "./routes/index.js";
 Database.initialize();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT as unknown as number;
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());

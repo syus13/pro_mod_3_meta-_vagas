@@ -26,7 +26,7 @@ Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores
 - Buscar vagas vagas (GET): `http://localhost:3333/jobs/search`
 - Marcar vaga como favorita (POST): `http://localhost:3333/jobs/favorite/:id`
 
-### 💻 Pesquisa de Tecnologia 💻
+### 💻 Pesquisa de Tecnologia 💻 
 
 - Registrar pesquisa de tecnologia (POST): `http://localhost:3333/techSearch/register`
 - Obter as principais tecnologias pesquisadas (GET): `http://localhost:3333/techSearch/topTechnologies`

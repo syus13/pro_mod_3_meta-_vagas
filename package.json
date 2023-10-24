@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start:dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "build": "tsup src --out-dir dist",
+    "start": "tsx watch dist/index.cjs",
+    "build": "tsup src",
     "test": "vitest"
   },
   "keywords": [],

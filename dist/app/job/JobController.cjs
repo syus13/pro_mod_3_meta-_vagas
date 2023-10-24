@@ -26,6 +26,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/job/JobController.ts
 var JobController_exports = {};
@@ -62,22 +82,24 @@ var STATUS_CODE = {
 
 // src/utils/Validations/job/JobValidation.ts
 var JobValidation = class {
-  static async isValid(data) {
-    const validation = yup.object().shape({
-      position: yup.string().required(),
-      salary: yup.string().required(),
-      city: yup.string().required(),
-      website: yup.string().required(),
-      company: yup.string().required(),
-      description: yup.string().required(),
-      link: yup.string().required(),
-      technology: yup.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup.object().shape({
+        position: yup.string().required(),
+        salary: yup.string().required(),
+        city: yup.string().required(),
+        website: yup.string().required(),
+        company: yup.string().required(),
+        description: yup.string().required(),
+        link: yup.string().required(),
+        technology: yup.string().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
-    }
   }
 };
 
@@ -86,44 +108,50 @@ var JobController = class {
   constructor(service) {
     this.service = service;
   }
-  async createJob(req, res) {
-    const { body } = req;
-    const bodyIsValid = await JobValidation.isValid(body);
-    if (bodyIsValid && bodyIsValid.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
-    }
-    const job = await this.service.create(body);
-    if ("error" in job) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(job.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
-    return res.status(STATUS_CODE.CREATED).json(job);
+  createJob(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const bodyIsValid = yield JobValidation.isValid(body);
+      if (bodyIsValid && bodyIsValid.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
+      }
+      const job = yield this.service.create(body);
+      if ("error" in job) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(job.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+      return res.status(STATUS_CODE.CREATED).json(job);
+    });
   }
-  async searchJobs(req, res) {
-    const { page = 1, limit = 10 } = req.query;
-    const jobsOrError = await this.service.searchJobs(
-      req.query,
-      Number(page),
-      Number(limit)
-    );
-    if ("error" in jobsOrError) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(
-          jobsOrError.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        )
+  searchJobs(req, res) {
+    return __async(this, null, function* () {
+      const { page = 1, limit = 10 } = req.query;
+      const jobsOrError = yield this.service.searchJobs(
+        req.query,
+        Number(page),
+        Number(limit)
       );
-    }
-    return res.status(STATUS_CODE.CREATED).json(jobsOrError);
+      if ("error" in jobsOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            jobsOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
+        );
+      }
+      return res.status(STATUS_CODE.CREATED).json(jobsOrError);
+    });
   }
-  async favoriteJob(req, res) {
-    const { userId, jobId } = req.params;
-    const resultOrError = await this.service.favoriteJob(userId, jobId);
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  favoriteJob(req, res) {
+    return __async(this, null, function* () {
+      const { userId, jobId } = req.params;
+      const resultOrError = yield this.service.favoriteJob(userId, jobId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

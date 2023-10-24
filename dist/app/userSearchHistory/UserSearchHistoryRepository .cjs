@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/userSearchHistory/UserSearchHistoryRepository .ts
 var UserSearchHistoryRepository_exports = {};
@@ -27,12 +47,14 @@ var UserSearchHistoryRepository = class {
   constructor(model) {
     this.model = model;
   }
-  async getUserSearchHistory(userId) {
-    try {
-      return await this.model.find({ userId }).sort({ timestamp: -1 });
-    } catch (erro) {
-      throw new Error(`Failed to get user search history: ${erro.message}`);
-    }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ userId }).sort({ timestamp: -1 });
+      } catch (erro) {
+        throw new Error(`Failed to get user search history: ${erro.message}`);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

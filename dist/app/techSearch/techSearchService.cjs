@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/techSearch/techSearchService.ts
 var techSearchService_exports = {};
@@ -52,33 +72,37 @@ var TechSearchService = class {
   constructor(techSearchRepository) {
     this.techSearchRepository = techSearchRepository;
   }
-  async registerTechSearch(technology, city) {
-    try {
-      const existingRecord = await this.techSearchRepository.findOne({
-        technology,
-        city
-      });
-      if (existingRecord) {
-        existingRecord.count += 1;
-        await existingRecord.save();
-      } else {
-        await this.techSearchRepository.create({
+  registerTechSearch(technology, city) {
+    return __async(this, null, function* () {
+      try {
+        const existingRecord = yield this.techSearchRepository.findOne({
           technology,
-          city,
-          count: 1
+          city
         });
+        if (existingRecord) {
+          existingRecord.count += 1;
+          yield existingRecord.save();
+        } else {
+          yield this.techSearchRepository.create({
+            technology,
+            city,
+            count: 1
+          });
+        }
+        return existingRecord;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      return existingRecord;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
   }
-  async getTopTechnologies() {
-    try {
-      return await this.techSearchRepository.getTopTechnologies();
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTopTechnologies() {
+    return __async(this, null, function* () {
+      try {
+        return yield this.techSearchRepository.getTopTechnologies();
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

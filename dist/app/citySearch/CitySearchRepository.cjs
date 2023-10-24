@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/citySearch/CitySearchRepository.ts
 var CitySearchRepository_exports = {};
@@ -52,25 +72,31 @@ var CitySearchRepository = class {
   constructor(model) {
     this.model = model;
   }
-  async find(query) {
-    try {
-      return this.model.find(query);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  find(query) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.find(query);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTopTechnology() {
-    const topTechs = await this.model.find().sort({ count: -1 }).limit(1);
-    if (!topTechs || topTechs.length === 0) {
-      throw new Error("No technology found");
-    }
-    return topTechs[0].technology;
+  getTopTechnology() {
+    return __async(this, null, function* () {
+      const topTechs = yield this.model.find().sort({ count: -1 }).limit(1);
+      if (!topTechs || topTechs.length === 0) {
+        throw new Error("No technology found");
+      }
+      return topTechs[0].technology;
+    });
   }
-  async getTop5CitiesForMostSearchedTech(technology) {
-    try {
-      return await this.model.find({ technology }).sort({ count: -1 }).limit(5);
-    } catch (erro) {
-    }
+  getTop5CitiesForMostSearchedTech(technology) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ technology }).sort({ count: -1 }).limit(5);
+      } catch (erro) {
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

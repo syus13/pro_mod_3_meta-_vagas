@@ -29,6 +29,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/@mapbox/node-pre-gyp/lib/util/s3_setup.js
 var require_s3_setup = __commonJS({
@@ -11115,18 +11135,18 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var familyFromFilesystem = async () => {
+    var familyFromFilesystem = () => __async(exports, null, function* () {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
       }
       cachedFamilyFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
       } catch (e) {
       }
       return cachedFamilyFilesystem;
-    };
+    });
     var familyFromFilesystemSync = () => {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
@@ -11139,20 +11159,20 @@ var require_detect_libc = __commonJS({
       }
       return cachedFamilyFilesystem;
     };
-    var family = async () => {
+    var family = () => __async(exports, null, function* () {
       let family2 = null;
       if (isLinux()) {
-        family2 = await familyFromFilesystem();
+        family2 = yield familyFromFilesystem();
         if (!family2) {
           family2 = familyFromReport();
         }
         if (!family2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           family2 = familyFromCommand(out);
         }
       }
       return family2;
-    };
+    });
     var familySync = () => {
       let family2 = null;
       if (isLinux()) {
@@ -11167,15 +11187,17 @@ var require_detect_libc = __commonJS({
       }
       return family2;
     };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
+    var isNonGlibcLinux = () => __async(exports, null, function* () {
+      return isLinux() && (yield family()) !== GLIBC;
+    });
     var isNonGlibcLinuxSync = () => isLinux() && familySync() !== GLIBC;
-    var versionFromFilesystem = async () => {
+    var versionFromFilesystem = () => __async(exports, null, function* () {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
       }
       cachedVersionFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         const versionMatch = lddContent.match(RE_GLIBC_VERSION);
         if (versionMatch) {
           cachedVersionFilesystem = versionMatch[1];
@@ -11183,7 +11205,7 @@ var require_detect_libc = __commonJS({
       } catch (e) {
       }
       return cachedVersionFilesystem;
-    };
+    });
     var versionFromFilesystemSync = () => {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
@@ -11217,20 +11239,20 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var version = async () => {
+    var version = () => __async(exports, null, function* () {
       let version2 = null;
       if (isLinux()) {
-        version2 = await versionFromFilesystem();
+        version2 = yield versionFromFilesystem();
         if (!version2) {
           version2 = versionFromReport();
         }
         if (!version2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           version2 = versionFromCommand(out);
         }
       }
       return version2;
-    };
+    });
     var versionSync = () => {
       let version2 = null;
       if (isLinux()) {

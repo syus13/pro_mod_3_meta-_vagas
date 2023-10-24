@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/techSearch/TechSearchController.ts
 var TechSearchController_exports = {};
@@ -52,26 +72,30 @@ var TechSearchController = class {
   constructor(techSearchService) {
     this.techSearchService = techSearchService;
   }
-  async registerTechSearch(req, res) {
-    const { technology, city } = req.body;
-    try {
-      const result = await this.techSearchService.registerTechSearch(
-        technology,
-        city
-      );
-      return res.status(STATUS_CODE.OK).json(result);
-    } catch (erro) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
+  registerTechSearch(req, res) {
+    return __async(this, null, function* () {
+      const { technology, city } = req.body;
+      try {
+        const result = yield this.techSearchService.registerTechSearch(
+          technology,
+          city
+        );
+        return res.status(STATUS_CODE.OK).json(result);
+      } catch (erro) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+    });
   }
-  async getTopTechnologies(req, res) {
-    const resultOrError = await this.techSearchService.getTopTechnologies();
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  getTopTechnologies(req, res) {
+    return __async(this, null, function* () {
+      const resultOrError = yield this.techSearchService.getTopTechnologies();
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

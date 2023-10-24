@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/citySearch/CitySearchService.ts
 var CitySearchService_exports = {};
@@ -53,24 +73,28 @@ var CitySearchService = class {
     this.citySearchRepository = citySearchRepository;
     this.techSearchService = techSearchService;
   }
-  async getTop5Cities() {
-    try {
-      const cities = await this.citySearchRepository.find({});
-      cities.sort(
-        (a, b) => b.count - a.count
-      );
-      return cities.slice(0, 5).map((city) => city.name);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5Cities() {
+    return __async(this, null, function* () {
+      try {
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b) => b.count - a.count
+        );
+        return cities.slice(0, 5).map((city) => city.name);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTop5CitiesForMostSearchedTech() {
-    try {
-      const topTech = await this.citySearchRepository.getTopTechnology();
-      return await this.citySearchRepository.getTopCitiesForTechnology(topTech);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5CitiesForMostSearchedTech() {
+    return __async(this, null, function* () {
+      try {
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/job/JobRepository.ts
 var JobRepository_exports = {};
@@ -53,29 +73,35 @@ var JobRepository = class {
     this.model = model;
     this.techSearchRepository = techSearchRepository;
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
-  async searchJobs(filters, page, limit) {
-    try {
-      return await this.model.find(filters).skip((page - 1) * limit).limit(limit);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  searchJobs(filters, page, limit) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find(filters).skip((page - 1) * limit).limit(limit);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
-  async favoriteJob(userId, jobId) {
-    try {
-      return await this.model.updateOne(
-        { _id: jobId },
-        { $addToSet: { favoritedBy: userId } }
-      );
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  favoriteJob(userId, jobId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.updateOne(
+          { _id: jobId },
+          { $addToSet: { favoritedBy: userId } }
+        );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

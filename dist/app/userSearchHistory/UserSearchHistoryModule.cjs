@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/userSearchHistory/UserSearchHistoryModule.ts
 var UserSearchHistoryModule_exports = {};
@@ -61,18 +81,20 @@ var UserSearchHistoryController = class {
   constructor(userSearchHistoryService) {
     this.userSearchHistoryService = userSearchHistoryService;
   }
-  async getUserSearchHistory(req, res) {
-    const { userId } = req.params;
-    const resultOrError = await this.userSearchHistoryService.getUserSearchHistory(userId);
-    if ("error" in resultOrError) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(
-          resultOrError.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        )
-      );
-    }
-    return res.json(resultOrError);
+  getUserSearchHistory(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = yield this.userSearchHistoryService.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            resultOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
+        );
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -81,12 +103,14 @@ var UserSearchHistoryRepository = class {
   constructor(model2) {
     this.model = model2;
   }
-  async getUserSearchHistory(userId) {
-    try {
-      return await this.model.find({ userId }).sort({ timestamp: -1 });
-    } catch (erro) {
-      throw new Error(`Failed to get user search history: ${erro.message}`);
-    }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ userId }).sort({ timestamp: -1 });
+      } catch (erro) {
+        throw new Error(`Failed to get user search history: ${erro.message}`);
+      }
+    });
   }
 };
 
@@ -95,12 +119,14 @@ var UserSearchHistoryService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async getUserSearchHistory(userId) {
-    try {
-      return await this.repository.getUserSearchHistory(userId);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.getUserSearchHistory(userId);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 

@@ -1,10 +1,27 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,6 +46,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/depd/index.js
 var require_depd = __commonJS({
@@ -32955,18 +32992,18 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var familyFromFilesystem = async () => {
+    var familyFromFilesystem = () => __async(exports, null, function* () {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
       }
       cachedFamilyFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
       } catch (e) {
       }
       return cachedFamilyFilesystem;
-    };
+    });
     var familyFromFilesystemSync = () => {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
@@ -32979,20 +33016,20 @@ var require_detect_libc = __commonJS({
       }
       return cachedFamilyFilesystem;
     };
-    var family = async () => {
+    var family = () => __async(exports, null, function* () {
       let family2 = null;
       if (isLinux()) {
-        family2 = await familyFromFilesystem();
+        family2 = yield familyFromFilesystem();
         if (!family2) {
           family2 = familyFromReport();
         }
         if (!family2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           family2 = familyFromCommand(out);
         }
       }
       return family2;
-    };
+    });
     var familySync = () => {
       let family2 = null;
       if (isLinux()) {
@@ -33007,15 +33044,17 @@ var require_detect_libc = __commonJS({
       }
       return family2;
     };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
+    var isNonGlibcLinux = () => __async(exports, null, function* () {
+      return isLinux() && (yield family()) !== GLIBC;
+    });
     var isNonGlibcLinuxSync = () => isLinux() && familySync() !== GLIBC;
-    var versionFromFilesystem = async () => {
+    var versionFromFilesystem = () => __async(exports, null, function* () {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
       }
       cachedVersionFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         const versionMatch = lddContent.match(RE_GLIBC_VERSION);
         if (versionMatch) {
           cachedVersionFilesystem = versionMatch[1];
@@ -33023,7 +33062,7 @@ var require_detect_libc = __commonJS({
       } catch (e) {
       }
       return cachedVersionFilesystem;
-    };
+    });
     var versionFromFilesystemSync = () => {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
@@ -33057,20 +33096,20 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var version = async () => {
+    var version = () => __async(exports, null, function* () {
       let version2 = null;
       if (isLinux()) {
-        version2 = await versionFromFilesystem();
+        version2 = yield versionFromFilesystem();
         if (!version2) {
           version2 = versionFromReport();
         }
         if (!version2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           version2 = versionFromCommand(out);
         }
       }
       return version2;
-    };
+    });
     var versionSync = () => {
       let version2 = null;
       if (isLinux()) {
@@ -38400,40 +38439,44 @@ var STATUS_CODE = {
 
 // src/utils/Validations/user/UserValidation.ts
 var UserValidation = class {
-  static async isValid(data) {
-    const validation = yup.object().shape({
-      name: yup.string().required(),
-      password: yup.string().required(),
-      email: yup.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup.object().shape({
+        name: yup.string().required(),
+        password: yup.string().required(),
+        email: yup.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
 // src/utils/Validations/user/UpdateValidation.ts
 var yup2 = __toESM(require("yup"), 1);
 var UpdateValidation = class {
-  static async isValid(data) {
-    const validation = yup2.object().shape({
-      name: yup2.string().required(),
-      password: yup2.string().required(),
-      email: yup2.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup2.object().shape({
+        name: yup2.string().required(),
+        password: yup2.string().required(),
+        email: yup2.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
@@ -38442,50 +38485,58 @@ var UserController = class {
   constructor(service) {
     this.service = service;
   }
-  async create(req, res) {
-    const { body } = req;
-    const bodyIsValid = await UserValidation.isValid(body);
-    if (bodyIsValid && bodyIsValid.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
-    }
-    const user = await this.service.create(body);
-    if ("error" in user) {
-      return res.status(STATUS_CODE.CONFLICT).json(user);
-    }
-    return res.status(STATUS_CODE.CREATED).json(user);
+  create(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const bodyIsValid = yield UserValidation.isValid(body);
+      if (bodyIsValid && bodyIsValid.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
+      }
+      const user = yield this.service.create(body);
+      if ("error" in user) {
+        return res.status(STATUS_CODE.CONFLICT).json(user);
+      }
+      return res.status(STATUS_CODE.CREATED).json(user);
+    });
   }
-  async update(req, res) {
-    const {
-      body,
-      params: { id }
-    } = req;
-    const updateValidation = await UpdateValidation.isValid(body);
-    if (updateValidation && updateValidation.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(
-        CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
-      );
-    }
-    const result = await this.service.update(id, body);
-    if ("error" in result) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(result);
+  update(req, res) {
+    return __async(this, null, function* () {
+      const {
+        body,
+        params: { id }
+      } = req;
+      const updateValidation = yield UpdateValidation.isValid(body);
+      if (updateValidation && updateValidation.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
+        );
+      }
+      const result = yield this.service.update(id, body);
+      if ("error" in result) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(result);
+    });
   }
-  async getFavoriteJobs(req, res) {
-    const { userId } = req.params;
-    const resultOrError = this.service.getFavoriteJobs(userId);
-    if ("error" in resultOrError) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(resultOrError);
+  getFavoriteJobs(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = this.service.getFavoriteJobs(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(resultOrError);
+    });
   }
-  async getUserSearchHistory(req, res) {
-    const { userId } = req.params;
-    const resultOrError = await this.service.getUserSearchHistory(userId);
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  getUserSearchHistory(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = yield this.service.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -38497,47 +38548,59 @@ var UserRepository = class {
   searchRecord(filters, jobAlreadyExists) {
     throw new Error("Method not implemented.");
   }
-  async findByEmail(email) {
-    try {
-      return this.model.findOne({ email });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findByEmail(email) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ email });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async update(id, data) {
-    try {
-      return this.model.findByIdAndUpdate(id, data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findByIdAndUpdate(id, data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async findById(id) {
-    try {
-      return this.model.findOne({ _id: id });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findById(id) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getFavoriteJobs(user) {
-    try {
-      return await this.model.find({ _id: { $in: user.favoritedBy } });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getUserSearchHistory(user) {
-    try {
-      return user.searchHistory;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38557,59 +38620,66 @@ var UserService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async create(data) {
-    const userAlreadyExists = await this.repository.findByEmail(data.email);
-    if (userAlreadyExists) {
-      return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
-    }
-    const user = {
-      ...data,
-      password: Crypt.encrypt(data.password)
-    };
-    return this.repository.create(user);
-  }
-  async update(id, data) {
-    try {
-      const userAlreadyExists = await this.repository.findById(id);
-      if (!userAlreadyExists) {
-        return CommonError.build(
-          userAlreadyExists.message,
-          STATUS_CODE.NOT_FOUND
-        );
+  create(data) {
+    return __async(this, null, function* () {
+      const userAlreadyExists = yield this.repository.findByEmail(data.email);
+      if (userAlreadyExists) {
+        return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
       }
-      const updated = {
-        name: data.name,
-        password: Crypt.encrypt(data.password),
-        email: data.email
-      };
-      return await this.repository.update(id, updated);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+      const user = __spreadProps(__spreadValues({}, data), {
+        password: Crypt.encrypt(data.password)
+      });
+      return this.repository.create(user);
+    });
   }
-  async getFavoriteJobs(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        const userAlreadyExists = yield this.repository.findById(id);
+        if (!userAlreadyExists) {
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
+        }
+        const updated = {
+          name: data.name,
+          password: Crypt.encrypt(data.password),
+          email: data.email
+        };
+        return yield this.repository.update(id, updated);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const favoriteJobs = await this.repository.getFavoriteJobs(user);
-      return favoriteJobs || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
   }
-  async getUserSearchHistory(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  getFavoriteJobs(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const searchHistory = await this.repository.getUserSearchHistory(user);
-      return searchHistory || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
+  }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38672,50 +38742,54 @@ var AuthService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async login(data) {
-    const userAlreadyExists = await this.repository.findByEmail(data.email);
-    if (!userAlreadyExists) {
-      return CommonError.build(
-        "invalid email or password ",
-        STATUS_CODE.BAD_REQUEST
+  login(data) {
+    return __async(this, null, function* () {
+      const userAlreadyExists = yield this.repository.findByEmail(data.email);
+      if (!userAlreadyExists) {
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+      const passwordIsValid = Crypt.compare(
+        data.password,
+        userAlreadyExists.password
       );
-    }
-    const passwordIsValid = Crypt.compare(
-      data.password,
-      userAlreadyExists.password
-    );
-    if (!passwordIsValid) {
-      return CommonError.build(
-        "invalid email or password ",
-        STATUS_CODE.BAD_REQUEST
-      );
-    }
-    const payload = { ...userAlreadyExists };
-    const secretKey = process.env.JWT_SECRET_KEY;
-    const options = { expiresIn: "90m" };
-    const token = import_jsonwebtoken2.default.sign(payload, secretKey, options);
-    return { token, user: userAlreadyExists };
+      if (!passwordIsValid) {
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+      const payload = __spreadValues({}, userAlreadyExists);
+      const secretKey = process.env.JWT_SECRET_KEY;
+      const options = { expiresIn: "90m" };
+      const token = import_jsonwebtoken2.default.sign(payload, secretKey, options);
+      return { token, user: userAlreadyExists };
+    });
   }
 };
 
 // src/utils/Validations/auth/AuthValidation.ts
 var yup3 = __toESM(require("yup"), 1);
 var AuthValidation = class {
-  static async isValid(data) {
-    const loginSchema = yup3.object().shape({
-      email: yup3.string().email().required(),
-      password: yup3.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const loginSchema = yup3.object().shape({
+        email: yup3.string().email().required(),
+        password: yup3.string().required()
+      });
+      try {
+        yield loginSchema.validate(data);
+        return { erro: false };
+      } catch (erro) {
+        return {
+          erro: true,
+          message: erro.message,
+          status: STATUS_CODE.BAD_REQUEST
+        };
+      }
     });
-    try {
-      await loginSchema.validate(data);
-      return { erro: false };
-    } catch (erro) {
-      return {
-        erro: true,
-        message: erro.message,
-        status: STATUS_CODE.BAD_REQUEST
-      };
-    }
   }
 };
 
@@ -38724,19 +38798,21 @@ var AuthController = class {
   constructor(service) {
     this.service = service;
   }
-  async login(req, res) {
-    const { body } = req;
-    const authController = await AuthValidation.isValid(body);
-    if (authController.erro) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(
-        CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
-      );
-    }
-    const result = await this.service.login(body);
-    if ("error" in result) {
-      return res.status(STATUS_CODE.NON_AUTHORIZED).json(CommonError.build(result.message, STATUS_CODE.NON_AUTHORIZED));
-    }
-    return res.status(STATUS_CODE.OK).json(result);
+  login(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const authController = yield AuthValidation.isValid(body);
+      if (authController.erro) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
+        );
+      }
+      const result = yield this.service.login(body);
+      if ("error" in result) {
+        return res.status(STATUS_CODE.NON_AUTHORIZED).json(CommonError.build(result.message, STATUS_CODE.NON_AUTHORIZED));
+      }
+      return res.status(STATUS_CODE.OK).json(result);
+    });
   }
 };
 
@@ -38761,22 +38837,24 @@ var import_express3 = __toESM(require_express2(), 1);
 // src/utils/Validations/job/JobValidation.ts
 var yup4 = __toESM(require("yup"), 1);
 var JobValidation = class {
-  static async isValid(data) {
-    const validation = yup4.object().shape({
-      position: yup4.string().required(),
-      salary: yup4.string().required(),
-      city: yup4.string().required(),
-      website: yup4.string().required(),
-      company: yup4.string().required(),
-      description: yup4.string().required(),
-      link: yup4.string().required(),
-      technology: yup4.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup4.object().shape({
+        position: yup4.string().required(),
+        salary: yup4.string().required(),
+        city: yup4.string().required(),
+        website: yup4.string().required(),
+        company: yup4.string().required(),
+        description: yup4.string().required(),
+        link: yup4.string().required(),
+        technology: yup4.string().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
-    }
   }
 };
 
@@ -38785,44 +38863,50 @@ var JobController = class {
   constructor(service) {
     this.service = service;
   }
-  async createJob(req, res) {
-    const { body } = req;
-    const bodyIsValid = await JobValidation.isValid(body);
-    if (bodyIsValid && bodyIsValid.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
-    }
-    const job = await this.service.create(body);
-    if ("error" in job) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(job.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
-    return res.status(STATUS_CODE.CREATED).json(job);
+  createJob(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const bodyIsValid = yield JobValidation.isValid(body);
+      if (bodyIsValid && bodyIsValid.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
+      }
+      const job = yield this.service.create(body);
+      if ("error" in job) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(job.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+      return res.status(STATUS_CODE.CREATED).json(job);
+    });
   }
-  async searchJobs(req, res) {
-    const { page = 1, limit = 10 } = req.query;
-    const jobsOrError = await this.service.searchJobs(
-      req.query,
-      Number(page),
-      Number(limit)
-    );
-    if ("error" in jobsOrError) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(
-          jobsOrError.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        )
+  searchJobs(req, res) {
+    return __async(this, null, function* () {
+      const { page = 1, limit = 10 } = req.query;
+      const jobsOrError = yield this.service.searchJobs(
+        req.query,
+        Number(page),
+        Number(limit)
       );
-    }
-    return res.status(STATUS_CODE.CREATED).json(jobsOrError);
+      if ("error" in jobsOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            jobsOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
+        );
+      }
+      return res.status(STATUS_CODE.CREATED).json(jobsOrError);
+    });
   }
-  async favoriteJob(req, res) {
-    const { userId, jobId } = req.params;
-    const resultOrError = await this.service.favoriteJob(userId, jobId);
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  favoriteJob(req, res) {
+    return __async(this, null, function* () {
+      const { userId, jobId } = req.params;
+      const resultOrError = yield this.service.favoriteJob(userId, jobId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -38833,29 +38917,35 @@ var JobService = class {
     this.techSearchRepository = techSearchRepository;
     this.userRepository = userRepository;
   }
-  async create(data) {
-    try {
-      return await this.repository.create(data);
-    } catch (erro) {
-      return CommonError.build(
-        "Error registering the job",
-        STATUS_CODE.BAD_REQUEST
-      );
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.create(data);
+      } catch (erro) {
+        return CommonError.build(
+          "Error registering the job",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+    });
   }
-  async searchJobs(filters, page, limit) {
-    try {
-      return await this.repository.searchJobs(filters, page, limit);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  searchJobs(filters, page, limit) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.searchJobs(filters, page, limit);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async favoriteJob(userId, jobId) {
-    try {
-      return await this.repository.favoriteJob(userId, jobId);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  favoriteJob(userId, jobId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.favoriteJob(userId, jobId);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38865,29 +38955,35 @@ var JobRepository = class {
     this.model = model6;
     this.techSearchRepository = techSearchRepository;
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
-  async searchJobs(filters, page, limit) {
-    try {
-      return await this.model.find(filters).skip((page - 1) * limit).limit(limit);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  searchJobs(filters, page, limit) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find(filters).skip((page - 1) * limit).limit(limit);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
-  async favoriteJob(userId, jobId) {
-    try {
-      return await this.model.updateOne(
-        { _id: jobId },
-        { $addToSet: { favoritedBy: userId } }
-      );
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
-    }
+  favoriteJob(userId, jobId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.updateOne(
+          { _id: jobId },
+          { $addToSet: { favoritedBy: userId } }
+        );
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.BAD_REQUEST);
+      }
+    });
   }
 };
 
@@ -38914,33 +39010,41 @@ var TechSearchRepository = class {
   constructor(model6) {
     this.model = model6;
   }
-  async findOne(query) {
-    try {
-      return this.model.findOne(query);
-    } catch (erro) {
-      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findOne(query) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne(query);
+      } catch (erro) {
+        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async find(query) {
-    try {
-      return this.model.find(query);
-    } catch (erro) {
-      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  find(query) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.find(query);
+      } catch (erro) {
+        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTopTechnologies() {
-    try {
-      return await this.model.find().sort({ count: -1 }).limit(5);
-    } catch (erro) {
-      CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTopTechnologies() {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find().sort({ count: -1 }).limit(5);
+      } catch (erro) {
+        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38978,26 +39082,30 @@ var TechSearchController = class {
   constructor(techSearchService) {
     this.techSearchService = techSearchService;
   }
-  async registerTechSearch(req, res) {
-    const { technology, city } = req.body;
-    try {
-      const result = await this.techSearchService.registerTechSearch(
-        technology,
-        city
-      );
-      return res.status(STATUS_CODE.OK).json(result);
-    } catch (erro) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
+  registerTechSearch(req, res) {
+    return __async(this, null, function* () {
+      const { technology, city } = req.body;
+      try {
+        const result = yield this.techSearchService.registerTechSearch(
+          technology,
+          city
+        );
+        return res.status(STATUS_CODE.OK).json(result);
+      } catch (erro) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+    });
   }
-  async getTopTechnologies(req, res) {
-    const resultOrError = await this.techSearchService.getTopTechnologies();
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  getTopTechnologies(req, res) {
+    return __async(this, null, function* () {
+      const resultOrError = yield this.techSearchService.getTopTechnologies();
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -39006,33 +39114,37 @@ var TechSearchService = class {
   constructor(techSearchRepository) {
     this.techSearchRepository = techSearchRepository;
   }
-  async registerTechSearch(technology, city) {
-    try {
-      const existingRecord = await this.techSearchRepository.findOne({
-        technology,
-        city
-      });
-      if (existingRecord) {
-        existingRecord.count += 1;
-        await existingRecord.save();
-      } else {
-        await this.techSearchRepository.create({
+  registerTechSearch(technology, city) {
+    return __async(this, null, function* () {
+      try {
+        const existingRecord = yield this.techSearchRepository.findOne({
           technology,
-          city,
-          count: 1
+          city
         });
+        if (existingRecord) {
+          existingRecord.count += 1;
+          yield existingRecord.save();
+        } else {
+          yield this.techSearchRepository.create({
+            technology,
+            city,
+            count: 1
+          });
+        }
+        return existingRecord;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      return existingRecord;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
   }
-  async getTopTechnologies() {
-    try {
-      return await this.techSearchRepository.getTopTechnologies();
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTopTechnologies() {
+    return __async(this, null, function* () {
+      try {
+        return yield this.techSearchRepository.getTopTechnologies();
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -39088,18 +39200,20 @@ var UserSearchHistoryController = class {
   constructor(userSearchHistoryService) {
     this.userSearchHistoryService = userSearchHistoryService;
   }
-  async getUserSearchHistory(req, res) {
-    const { userId } = req.params;
-    const resultOrError = await this.userSearchHistoryService.getUserSearchHistory(userId);
-    if ("error" in resultOrError) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(
-          resultOrError.message,
-          STATUS_CODE.INTERNAL_SERVER_ERROR
-        )
-      );
-    }
-    return res.json(resultOrError);
+  getUserSearchHistory(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = yield this.userSearchHistoryService.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(
+            resultOrError.message,
+            STATUS_CODE.INTERNAL_SERVER_ERROR
+          )
+        );
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -39108,12 +39222,14 @@ var UserSearchHistoryRepository = class {
   constructor(model6) {
     this.model = model6;
   }
-  async getUserSearchHistory(userId) {
-    try {
-      return await this.model.find({ userId }).sort({ timestamp: -1 });
-    } catch (erro) {
-      throw new Error(`Failed to get user search history: ${erro.message}`);
-    }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ userId }).sort({ timestamp: -1 });
+      } catch (erro) {
+        throw new Error(`Failed to get user search history: ${erro.message}`);
+      }
+    });
   }
 };
 
@@ -39122,12 +39238,14 @@ var UserSearchHistoryService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async getUserSearchHistory(userId) {
-    try {
-      return await this.repository.getUserSearchHistory(userId);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.getUserSearchHistory(userId);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -39157,25 +39275,29 @@ var CitySearchController = class {
   constructor(citySearchService) {
     this.citySearchService = citySearchService;
   }
-  async getTop5Cities(req, res) {
-    try {
-      const topCities = await this.citySearchService.getTop5Cities();
-      return res.status(STATUS_CODE.OK).json(topCities);
-    } catch (erro) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
+  getTop5Cities(req, res) {
+    return __async(this, null, function* () {
+      try {
+        const topCities = yield this.citySearchService.getTop5Cities();
+        return res.status(STATUS_CODE.OK).json(topCities);
+      } catch (erro) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+    });
   }
-  async getTop5CitiesForMostSearchedTech(req, res) {
-    try {
-      const topCities = await this.citySearchService.getTop5CitiesForMostSearchedTech();
-      return res.status(STATUS_CODE.OK).json(topCities);
-    } catch (erro) {
-      return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
-        CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
-      );
-    }
+  getTop5CitiesForMostSearchedTech(req, res) {
+    return __async(this, null, function* () {
+      try {
+        const topCities = yield this.citySearchService.getTop5CitiesForMostSearchedTech();
+        return res.status(STATUS_CODE.OK).json(topCities);
+      } catch (erro) {
+        return res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json(
+          CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
+        );
+      }
+    });
   }
 };
 
@@ -39185,24 +39307,28 @@ var CitySearchService = class {
     this.citySearchRepository = citySearchRepository;
     this.techSearchService = techSearchService;
   }
-  async getTop5Cities() {
-    try {
-      const cities = await this.citySearchRepository.find({});
-      cities.sort(
-        (a, b) => b.count - a.count
-      );
-      return cities.slice(0, 5).map((city) => city.name);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5Cities() {
+    return __async(this, null, function* () {
+      try {
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b) => b.count - a.count
+        );
+        return cities.slice(0, 5).map((city) => city.name);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTop5CitiesForMostSearchedTech() {
-    try {
-      const topTech = await this.citySearchRepository.getTopTechnology();
-      return await this.citySearchRepository.getTopCitiesForTechnology(topTech);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5CitiesForMostSearchedTech() {
+    return __async(this, null, function* () {
+      try {
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -39211,25 +39337,31 @@ var CitySearchRepository = class {
   constructor(model6) {
     this.model = model6;
   }
-  async find(query) {
-    try {
-      return this.model.find(query);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  find(query) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.find(query);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTopTechnology() {
-    const topTechs = await this.model.find().sort({ count: -1 }).limit(1);
-    if (!topTechs || topTechs.length === 0) {
-      throw new Error("No technology found");
-    }
-    return topTechs[0].technology;
+  getTopTechnology() {
+    return __async(this, null, function* () {
+      const topTechs = yield this.model.find().sort({ count: -1 }).limit(1);
+      if (!topTechs || topTechs.length === 0) {
+        throw new Error("No technology found");
+      }
+      return topTechs[0].technology;
+    });
   }
-  async getTop5CitiesForMostSearchedTech(technology) {
-    try {
-      return await this.model.find({ technology }).sort({ count: -1 }).limit(5);
-    } catch (erro) {
-    }
+  getTop5CitiesForMostSearchedTech(technology) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ technology }).sort({ count: -1 }).limit(5);
+      } catch (erro) {
+      }
+    });
   }
 };
 

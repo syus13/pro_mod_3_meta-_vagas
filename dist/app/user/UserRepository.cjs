@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/user/UserRepository.ts
 var UserRepository_exports = {};
@@ -55,47 +75,59 @@ var UserRepository = class {
   searchRecord(filters, jobAlreadyExists) {
     throw new Error("Method not implemented.");
   }
-  async findByEmail(email) {
-    try {
-      return this.model.findOne({ email });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findByEmail(email) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ email });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async update(id, data) {
-    try {
-      return this.model.findByIdAndUpdate(id, data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findByIdAndUpdate(id, data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async findById(id) {
-    try {
-      return this.model.findOne({ _id: id });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findById(id) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getFavoriteJobs(user) {
-    try {
-      return await this.model.find({ _id: { $in: user.favoritedBy } });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getUserSearchHistory(user) {
-    try {
-      return user.searchHistory;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

@@ -1,10 +1,27 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,6 +46,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/depd/index.js
 var require_depd = __commonJS({
@@ -32955,18 +32992,18 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var familyFromFilesystem = async () => {
+    var familyFromFilesystem = () => __async(exports, null, function* () {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
       }
       cachedFamilyFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
       } catch (e) {
       }
       return cachedFamilyFilesystem;
-    };
+    });
     var familyFromFilesystemSync = () => {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
@@ -32979,20 +33016,20 @@ var require_detect_libc = __commonJS({
       }
       return cachedFamilyFilesystem;
     };
-    var family = async () => {
+    var family = () => __async(exports, null, function* () {
       let family2 = null;
       if (isLinux()) {
-        family2 = await familyFromFilesystem();
+        family2 = yield familyFromFilesystem();
         if (!family2) {
           family2 = familyFromReport();
         }
         if (!family2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           family2 = familyFromCommand(out);
         }
       }
       return family2;
-    };
+    });
     var familySync = () => {
       let family2 = null;
       if (isLinux()) {
@@ -33007,15 +33044,17 @@ var require_detect_libc = __commonJS({
       }
       return family2;
     };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
+    var isNonGlibcLinux = () => __async(exports, null, function* () {
+      return isLinux() && (yield family()) !== GLIBC;
+    });
     var isNonGlibcLinuxSync = () => isLinux() && familySync() !== GLIBC;
-    var versionFromFilesystem = async () => {
+    var versionFromFilesystem = () => __async(exports, null, function* () {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
       }
       cachedVersionFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         const versionMatch = lddContent.match(RE_GLIBC_VERSION);
         if (versionMatch) {
           cachedVersionFilesystem = versionMatch[1];
@@ -33023,7 +33062,7 @@ var require_detect_libc = __commonJS({
       } catch (e) {
       }
       return cachedVersionFilesystem;
-    };
+    });
     var versionFromFilesystemSync = () => {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
@@ -33057,20 +33096,20 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var version = async () => {
+    var version = () => __async(exports, null, function* () {
       let version2 = null;
       if (isLinux()) {
-        version2 = await versionFromFilesystem();
+        version2 = yield versionFromFilesystem();
         if (!version2) {
           version2 = versionFromReport();
         }
         if (!version2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           version2 = versionFromCommand(out);
         }
       }
       return version2;
-    };
+    });
     var versionSync = () => {
       let version2 = null;
       if (isLinux()) {
@@ -38397,40 +38436,44 @@ var STATUS_CODE = {
 
 // src/utils/Validations/user/UserValidation.ts
 var UserValidation = class {
-  static async isValid(data) {
-    const validation = yup.object().shape({
-      name: yup.string().required(),
-      password: yup.string().required(),
-      email: yup.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup.object().shape({
+        name: yup.string().required(),
+        password: yup.string().required(),
+        email: yup.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
 // src/utils/Validations/user/UpdateValidation.ts
 var yup2 = __toESM(require("yup"), 1);
 var UpdateValidation = class {
-  static async isValid(data) {
-    const validation = yup2.object().shape({
-      name: yup2.string().required(),
-      password: yup2.string().required(),
-      email: yup2.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup2.object().shape({
+        name: yup2.string().required(),
+        password: yup2.string().required(),
+        email: yup2.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
@@ -38439,50 +38482,58 @@ var UserController = class {
   constructor(service) {
     this.service = service;
   }
-  async create(req, res) {
-    const { body } = req;
-    const bodyIsValid = await UserValidation.isValid(body);
-    if (bodyIsValid && bodyIsValid.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
-    }
-    const user = await this.service.create(body);
-    if ("error" in user) {
-      return res.status(STATUS_CODE.CONFLICT).json(user);
-    }
-    return res.status(STATUS_CODE.CREATED).json(user);
+  create(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const bodyIsValid = yield UserValidation.isValid(body);
+      if (bodyIsValid && bodyIsValid.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
+      }
+      const user = yield this.service.create(body);
+      if ("error" in user) {
+        return res.status(STATUS_CODE.CONFLICT).json(user);
+      }
+      return res.status(STATUS_CODE.CREATED).json(user);
+    });
   }
-  async update(req, res) {
-    const {
-      body,
-      params: { id }
-    } = req;
-    const updateValidation = await UpdateValidation.isValid(body);
-    if (updateValidation && updateValidation.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(
-        CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
-      );
-    }
-    const result = await this.service.update(id, body);
-    if ("error" in result) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(result);
+  update(req, res) {
+    return __async(this, null, function* () {
+      const {
+        body,
+        params: { id }
+      } = req;
+      const updateValidation = yield UpdateValidation.isValid(body);
+      if (updateValidation && updateValidation.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
+        );
+      }
+      const result = yield this.service.update(id, body);
+      if ("error" in result) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(result);
+    });
   }
-  async getFavoriteJobs(req, res) {
-    const { userId } = req.params;
-    const resultOrError = this.service.getFavoriteJobs(userId);
-    if ("error" in resultOrError) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(resultOrError);
+  getFavoriteJobs(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = this.service.getFavoriteJobs(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(resultOrError);
+    });
   }
-  async getUserSearchHistory(req, res) {
-    const { userId } = req.params;
-    const resultOrError = await this.service.getUserSearchHistory(userId);
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  getUserSearchHistory(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = yield this.service.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 
@@ -38494,47 +38545,59 @@ var UserRepository = class {
   searchRecord(filters, jobAlreadyExists) {
     throw new Error("Method not implemented.");
   }
-  async findByEmail(email) {
-    try {
-      return this.model.findOne({ email });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findByEmail(email) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ email });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async update(id, data) {
-    try {
-      return this.model.findByIdAndUpdate(id, data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findByIdAndUpdate(id, data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async findById(id) {
-    try {
-      return this.model.findOne({ _id: id });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findById(id) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getFavoriteJobs(user) {
-    try {
-      return await this.model.find({ _id: { $in: user.favoritedBy } });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getUserSearchHistory(user) {
-    try {
-      return user.searchHistory;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38554,59 +38617,66 @@ var UserService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async create(data) {
-    const userAlreadyExists = await this.repository.findByEmail(data.email);
-    if (userAlreadyExists) {
-      return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
-    }
-    const user = {
-      ...data,
-      password: Crypt.encrypt(data.password)
-    };
-    return this.repository.create(user);
-  }
-  async update(id, data) {
-    try {
-      const userAlreadyExists = await this.repository.findById(id);
-      if (!userAlreadyExists) {
-        return CommonError.build(
-          userAlreadyExists.message,
-          STATUS_CODE.NOT_FOUND
-        );
+  create(data) {
+    return __async(this, null, function* () {
+      const userAlreadyExists = yield this.repository.findByEmail(data.email);
+      if (userAlreadyExists) {
+        return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
       }
-      const updated = {
-        name: data.name,
-        password: Crypt.encrypt(data.password),
-        email: data.email
-      };
-      return await this.repository.update(id, updated);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+      const user = __spreadProps(__spreadValues({}, data), {
+        password: Crypt.encrypt(data.password)
+      });
+      return this.repository.create(user);
+    });
   }
-  async getFavoriteJobs(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        const userAlreadyExists = yield this.repository.findById(id);
+        if (!userAlreadyExists) {
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
+        }
+        const updated = {
+          name: data.name,
+          password: Crypt.encrypt(data.password),
+          email: data.email
+        };
+        return yield this.repository.update(id, updated);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const favoriteJobs = await this.repository.getFavoriteJobs(user);
-      return favoriteJobs || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
   }
-  async getUserSearchHistory(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  getFavoriteJobs(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const searchHistory = await this.repository.getUserSearchHistory(user);
-      return searchHistory || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
+  }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 

@@ -3,8 +3,22 @@ var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,6 +43,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/depd/index.js
 var require_depd = __commonJS({
@@ -32955,18 +32989,18 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var familyFromFilesystem = async () => {
+    var familyFromFilesystem = () => __async(exports, null, function* () {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
       }
       cachedFamilyFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
       } catch (e) {
       }
       return cachedFamilyFilesystem;
-    };
+    });
     var familyFromFilesystemSync = () => {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
@@ -32979,20 +33013,20 @@ var require_detect_libc = __commonJS({
       }
       return cachedFamilyFilesystem;
     };
-    var family = async () => {
+    var family = () => __async(exports, null, function* () {
       let family2 = null;
       if (isLinux()) {
-        family2 = await familyFromFilesystem();
+        family2 = yield familyFromFilesystem();
         if (!family2) {
           family2 = familyFromReport();
         }
         if (!family2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           family2 = familyFromCommand(out);
         }
       }
       return family2;
-    };
+    });
     var familySync = () => {
       let family2 = null;
       if (isLinux()) {
@@ -33007,15 +33041,17 @@ var require_detect_libc = __commonJS({
       }
       return family2;
     };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
+    var isNonGlibcLinux = () => __async(exports, null, function* () {
+      return isLinux() && (yield family()) !== GLIBC;
+    });
     var isNonGlibcLinuxSync = () => isLinux() && familySync() !== GLIBC;
-    var versionFromFilesystem = async () => {
+    var versionFromFilesystem = () => __async(exports, null, function* () {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
       }
       cachedVersionFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         const versionMatch = lddContent.match(RE_GLIBC_VERSION);
         if (versionMatch) {
           cachedVersionFilesystem = versionMatch[1];
@@ -33023,7 +33059,7 @@ var require_detect_libc = __commonJS({
       } catch (e) {
       }
       return cachedVersionFilesystem;
-    };
+    });
     var versionFromFilesystemSync = () => {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
@@ -33057,20 +33093,20 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var version = async () => {
+    var version = () => __async(exports, null, function* () {
       let version2 = null;
       if (isLinux()) {
-        version2 = await versionFromFilesystem();
+        version2 = yield versionFromFilesystem();
         if (!version2) {
           version2 = versionFromReport();
         }
         if (!version2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           version2 = versionFromCommand(out);
         }
       }
       return version2;
-    };
+    });
     var versionSync = () => {
       let version2 = null;
       if (isLinux()) {
@@ -38400,47 +38436,59 @@ var UserRepository = class {
   searchRecord(filters, jobAlreadyExists) {
     throw new Error("Method not implemented.");
   }
-  async findByEmail(email) {
-    try {
-      return this.model.findOne({ email });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findByEmail(email) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ email });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async create(data) {
-    try {
-      return this.model.create(data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.create(data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async update(id, data) {
-    try {
-      return this.model.findByIdAndUpdate(id, data);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findByIdAndUpdate(id, data);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async findById(id) {
-    try {
-      return this.model.findOne({ _id: id });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  findById(id) {
+    return __async(this, null, function* () {
+      try {
+        return this.model.findOne({ _id: id });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getFavoriteJobs(user) {
-    try {
-      return await this.model.find({ _id: { $in: user.favoritedBy } });
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getFavoriteJobs(user) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.model.find({ _id: { $in: user.favoritedBy } });
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getUserSearchHistory(user) {
-    try {
-      return user.searchHistory;
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getUserSearchHistory(user) {
+    return __async(this, null, function* () {
+      try {
+        return user.searchHistory;
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -38461,50 +38509,54 @@ var AuthService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async login(data) {
-    const userAlreadyExists = await this.repository.findByEmail(data.email);
-    if (!userAlreadyExists) {
-      return CommonError.build(
-        "invalid email or password ",
-        STATUS_CODE.BAD_REQUEST
+  login(data) {
+    return __async(this, null, function* () {
+      const userAlreadyExists = yield this.repository.findByEmail(data.email);
+      if (!userAlreadyExists) {
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+      const passwordIsValid = Crypt.compare(
+        data.password,
+        userAlreadyExists.password
       );
-    }
-    const passwordIsValid = Crypt.compare(
-      data.password,
-      userAlreadyExists.password
-    );
-    if (!passwordIsValid) {
-      return CommonError.build(
-        "invalid email or password ",
-        STATUS_CODE.BAD_REQUEST
-      );
-    }
-    const payload = { ...userAlreadyExists };
-    const secretKey = process.env.JWT_SECRET_KEY;
-    const options = { expiresIn: "90m" };
-    const token = import_jsonwebtoken.default.sign(payload, secretKey, options);
-    return { token, user: userAlreadyExists };
+      if (!passwordIsValid) {
+        return CommonError.build(
+          "invalid email or password ",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+      const payload = __spreadValues({}, userAlreadyExists);
+      const secretKey = process.env.JWT_SECRET_KEY;
+      const options = { expiresIn: "90m" };
+      const token = import_jsonwebtoken.default.sign(payload, secretKey, options);
+      return { token, user: userAlreadyExists };
+    });
   }
 };
 
 // src/utils/Validations/auth/AuthValidation.ts
 var yup = __toESM(require("yup"), 1);
 var AuthValidation = class {
-  static async isValid(data) {
-    const loginSchema = yup.object().shape({
-      email: yup.string().email().required(),
-      password: yup.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const loginSchema = yup.object().shape({
+        email: yup.string().email().required(),
+        password: yup.string().required()
+      });
+      try {
+        yield loginSchema.validate(data);
+        return { erro: false };
+      } catch (erro) {
+        return {
+          erro: true,
+          message: erro.message,
+          status: STATUS_CODE.BAD_REQUEST
+        };
+      }
     });
-    try {
-      await loginSchema.validate(data);
-      return { erro: false };
-    } catch (erro) {
-      return {
-        erro: true,
-        message: erro.message,
-        status: STATUS_CODE.BAD_REQUEST
-      };
-    }
   }
 };
 
@@ -38513,19 +38565,21 @@ var AuthController = class {
   constructor(service) {
     this.service = service;
   }
-  async login(req, res) {
-    const { body } = req;
-    const authController = await AuthValidation.isValid(body);
-    if (authController.erro) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(
-        CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
-      );
-    }
-    const result = await this.service.login(body);
-    if ("error" in result) {
-      return res.status(STATUS_CODE.NON_AUTHORIZED).json(CommonError.build(result.message, STATUS_CODE.NON_AUTHORIZED));
-    }
-    return res.status(STATUS_CODE.OK).json(result);
+  login(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const authController = yield AuthValidation.isValid(body);
+      if (authController.erro) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(authController.message, STATUS_CODE.BAD_REQUEST)
+        );
+      }
+      const result = yield this.service.login(body);
+      if ("error" in result) {
+        return res.status(STATUS_CODE.NON_AUTHORIZED).json(CommonError.build(result.message, STATUS_CODE.NON_AUTHORIZED));
+      }
+      return res.status(STATUS_CODE.OK).json(result);
+    });
   }
 };
 

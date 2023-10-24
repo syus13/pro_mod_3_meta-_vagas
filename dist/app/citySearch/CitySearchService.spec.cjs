@@ -1,11 +1,39 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b2) => {
+  for (var prop in b2 || (b2 = {}))
+    if (__hasOwnProp.call(b2, prop))
+      __defNormalProp(a, prop, b2[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b2)) {
+      if (__propIsEnum.call(b2, prop))
+        __defNormalProp(a, prop, b2[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b2) => __defProps(a, __getOwnPropDescs(b2));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 var __esm = (fn2, res) => function __init() {
   return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
 };
@@ -63,6 +91,26 @@ var __privateWrapper = (obj, member, setter, getter) => ({
     return __privateGet(obj, member, getter);
   }
 });
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve2, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve2(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/pretty-format/node_modules/ansi-styles/index.js
 var require_ansi_styles = __commonJS({
@@ -171,7 +219,7 @@ var require_ansi_styles = __commonJS({
         },
         hexToRgb: {
           value: (hex2) => {
-            const matches = /(?<colorString>[a-f\d]{6}|[a-f\d]{3})/i.exec(hex2.toString(16));
+            const matches = new RegExp("(?<colorString>[a-f\\d]{6}|[a-f\\d]{3})", "i").exec(hex2.toString(16));
             if (!matches) {
               return [0, 0, 0];
             }
@@ -427,9 +475,7 @@ var require_DOMCollection = __commonJS({
         isNamedNodeMap(collection) ? Array.from(collection).reduce((props, attribute) => {
           props[attribute.name] = attribute.value;
           return props;
-        }, {}) : {
-          ...collection
-        },
+        }, {}) : __spreadValues({}, collection),
         config2,
         indentation,
         depth,
@@ -540,7 +586,7 @@ var require_DOMElement = __commonJS({
     var testHasAttribute = (val) => {
       try {
         return typeof val.hasAttribute === "function" && val.hasAttribute("is");
-      } catch {
+      } catch (e) {
         return false;
       }
     };
@@ -550,7 +596,10 @@ var require_DOMElement = __commonJS({
       const isCustomElement = typeof tagName === "string" && tagName.includes("-") || testHasAttribute(val);
       return nodeType === ELEMENT_NODE && (ELEMENT_REGEXP.test(constructorName) || isCustomElement) || nodeType === TEXT_NODE && constructorName === "Text" || nodeType === COMMENT_NODE && constructorName === "Comment" || nodeType === FRAGMENT_NODE && constructorName === "DocumentFragment";
     };
-    var test3 = (val) => val?.constructor?.name && testNode(val);
+    var test3 = (val) => {
+      var _a2;
+      return ((_a2 = val == null ? void 0 : val.constructor) == null ? void 0 : _a2.name) && testNode(val);
+    };
     exports.test = test3;
     function nodeIsText(node) {
       return node.nodeType === TEXT_NODE;
@@ -1564,25 +1613,37 @@ ${indentationNext}`);
       };
       return colors;
     }, /* @__PURE__ */ Object.create(null));
-    var getPrintFunctionName = (options) => options?.printFunctionName ?? DEFAULT_OPTIONS.printFunctionName;
-    var getEscapeRegex = (options) => options?.escapeRegex ?? DEFAULT_OPTIONS.escapeRegex;
-    var getEscapeString = (options) => options?.escapeString ?? DEFAULT_OPTIONS.escapeString;
-    var getConfig = (options) => ({
-      callToJSON: options?.callToJSON ?? DEFAULT_OPTIONS.callToJSON,
-      colors: options?.highlight ? getColorsHighlight(options) : getColorsEmpty(),
-      compareKeys: typeof options?.compareKeys === "function" || options?.compareKeys === null ? options.compareKeys : DEFAULT_OPTIONS.compareKeys,
-      escapeRegex: getEscapeRegex(options),
-      escapeString: getEscapeString(options),
-      indent: options?.min ? "" : createIndent(options?.indent ?? DEFAULT_OPTIONS.indent),
-      maxDepth: options?.maxDepth ?? DEFAULT_OPTIONS.maxDepth,
-      maxWidth: options?.maxWidth ?? DEFAULT_OPTIONS.maxWidth,
-      min: options?.min ?? DEFAULT_OPTIONS.min,
-      plugins: options?.plugins ?? DEFAULT_OPTIONS.plugins,
-      printBasicPrototype: options?.printBasicPrototype ?? true,
-      printFunctionName: getPrintFunctionName(options),
-      spacingInner: options?.min ? " " : "\n",
-      spacingOuter: options?.min ? "" : "\n"
-    });
+    var getPrintFunctionName = (options) => {
+      var _a2;
+      return (_a2 = options == null ? void 0 : options.printFunctionName) != null ? _a2 : DEFAULT_OPTIONS.printFunctionName;
+    };
+    var getEscapeRegex = (options) => {
+      var _a2;
+      return (_a2 = options == null ? void 0 : options.escapeRegex) != null ? _a2 : DEFAULT_OPTIONS.escapeRegex;
+    };
+    var getEscapeString = (options) => {
+      var _a2;
+      return (_a2 = options == null ? void 0 : options.escapeString) != null ? _a2 : DEFAULT_OPTIONS.escapeString;
+    };
+    var getConfig = (options) => {
+      var _a2, _b, _c, _d, _e, _f, _g;
+      return {
+        callToJSON: (_a2 = options == null ? void 0 : options.callToJSON) != null ? _a2 : DEFAULT_OPTIONS.callToJSON,
+        colors: (options == null ? void 0 : options.highlight) ? getColorsHighlight(options) : getColorsEmpty(),
+        compareKeys: typeof (options == null ? void 0 : options.compareKeys) === "function" || (options == null ? void 0 : options.compareKeys) === null ? options.compareKeys : DEFAULT_OPTIONS.compareKeys,
+        escapeRegex: getEscapeRegex(options),
+        escapeString: getEscapeString(options),
+        indent: (options == null ? void 0 : options.min) ? "" : createIndent((_b = options == null ? void 0 : options.indent) != null ? _b : DEFAULT_OPTIONS.indent),
+        maxDepth: (_c = options == null ? void 0 : options.maxDepth) != null ? _c : DEFAULT_OPTIONS.maxDepth,
+        maxWidth: (_d = options == null ? void 0 : options.maxWidth) != null ? _d : DEFAULT_OPTIONS.maxWidth,
+        min: (_e = options == null ? void 0 : options.min) != null ? _e : DEFAULT_OPTIONS.min,
+        plugins: (_f = options == null ? void 0 : options.plugins) != null ? _f : DEFAULT_OPTIONS.plugins,
+        printBasicPrototype: (_g = options == null ? void 0 : options.printBasicPrototype) != null ? _g : true,
+        printFunctionName: getPrintFunctionName(options),
+        spacingInner: (options == null ? void 0 : options.min) ? " " : "\n",
+        spacingOuter: (options == null ? void 0 : options.min) ? "" : "\n"
+      };
+    };
     function createIndent(indent) {
       return new Array(indent + 1).join(" ");
     }
@@ -6947,7 +7008,7 @@ var init_magic_string_es = __esm({
       }
       overwrite(start, end, content, options) {
         options = options || {};
-        return this.update(start, end, content, { ...options, overwrite: !options.contentOnly });
+        return this.update(start, end, content, __spreadProps(__spreadValues({}, options), { overwrite: !options.contentOnly }));
       }
       update(start, end, content, options) {
         if (typeof content !== "string")
@@ -7689,18 +7750,16 @@ function clone(val, seen, options = defaultCloneOptions) {
         continue;
       const cloned = clone(val[k2], seen);
       if ("get" in descriptor) {
-        Object.defineProperty(out, k2, {
-          ...descriptor,
+        Object.defineProperty(out, k2, __spreadProps(__spreadValues({}, descriptor), {
           get() {
             return cloned;
           }
-        });
+        }));
       } else {
-        Object.defineProperty(out, k2, {
-          ...descriptor,
+        Object.defineProperty(out, k2, __spreadProps(__spreadValues({}, descriptor), {
           writable: options.forceWritable ? true : descriptor.writable,
           value: cloned
-        });
+        }));
       }
     }
     return out;
@@ -7739,26 +7798,25 @@ var PLUGINS = [
   Immutable,
   AsymmetricMatcher
 ];
-function stringify(object2, maxDepth = 10, { maxLength, ...options } = {}) {
-  const MAX_LENGTH = maxLength ?? 1e4;
+function stringify(object2, maxDepth = 10, _a2 = {}) {
+  var _b = _a2, { maxLength } = _b, options = __objRest(_b, ["maxLength"]);
+  const MAX_LENGTH = maxLength != null ? maxLength : 1e4;
   let result;
   try {
-    result = (0, import_pretty_format.format)(object2, {
+    result = (0, import_pretty_format.format)(object2, __spreadValues({
       maxDepth,
       escapeString: false,
       // min: true,
-      plugins: PLUGINS,
-      ...options
-    });
-  } catch {
-    result = (0, import_pretty_format.format)(object2, {
+      plugins: PLUGINS
+    }, options));
+  } catch (e) {
+    result = (0, import_pretty_format.format)(object2, __spreadValues({
       callToJSON: false,
       maxDepth,
       escapeString: false,
       // min: true,
-      plugins: PLUGINS,
-      ...options
-    });
+      plugins: PLUGINS
+    }, options));
   }
   return result.length >= MAX_LENGTH && maxDepth > 1 ? stringify(object2, Math.floor(maxDepth / 2)) : result;
 }
@@ -7841,7 +7899,8 @@ function inspect2(obj, options = {}) {
   return inspect(obj, options);
 }
 function objDisplay(obj, options = {}) {
-  const truncateThreshold = options.truncate ?? 40;
+  var _a2;
+  const truncateThreshold = (_a2 = options.truncate) != null ? _a2 : 40;
   const str = inspect2(obj, options);
   const type2 = Object.prototype.toString.call(obj);
   if (truncateThreshold && str.length >= truncateThreshold) {
@@ -8222,12 +8281,10 @@ function getContextLines(contextLines) {
   return typeof contextLines === "number" && Number.isSafeInteger(contextLines) && contextLines >= 0 ? contextLines : DIFF_CONTEXT_DEFAULT;
 }
 function normalizeDiffOptions(options = {}) {
-  return {
-    ...getDefaultOptions(),
-    ...options,
+  return __spreadProps(__spreadValues(__spreadValues({}, getDefaultOptions()), options), {
     compareKeys: getCompareKeys(options.compareKeys),
     contextLines: getContextLines(options.contextLines)
-  };
+  });
 }
 function isEmptyString(lines) {
   return lines.length === 1 && lines[0].length === 0;
@@ -8438,7 +8495,7 @@ function compareObjects(a, b2, options) {
   try {
     const formatOptions = getFormatOptions(FORMAT_OPTIONS, options);
     difference = getObjectsDifference(a, b2, formatOptions, options);
-  } catch {
+  } catch (e) {
     hasThrown = true;
   }
   const noDiffMessage = getCommonMessage(NO_DIFF_MESSAGE, options);
@@ -8458,13 +8515,12 @@ ${difference}`;
 }
 function getFormatOptions(formatOptions, options) {
   const { compareKeys } = normalizeDiffOptions(options);
-  return {
-    ...formatOptions,
+  return __spreadProps(__spreadValues({}, formatOptions), {
     compareKeys
-  };
+  });
 }
 function getObjectsDifference(a, b2, formatOptions, options) {
-  const formatOptionsZeroIndent = { ...formatOptions, indent: 0 };
+  const formatOptionsZeroIndent = __spreadProps(__spreadValues({}, formatOptions), { indent: 0 });
   const aCompare = (0, import_pretty_format3.format)(a, formatOptionsZeroIndent);
   const bCompare = (0, import_pretty_format3.format)(b2, formatOptionsZeroIndent);
   if (aCompare === bCompare) {
@@ -8574,7 +8630,7 @@ function processError(err, diffOptions) {
       err.message = normalizeErrorMessage(err.message);
     if (typeof err.cause === "object" && typeof err.cause.message === "string")
       err.cause.message = normalizeErrorMessage(err.cause.message);
-  } catch {
+  } catch (e) {
   }
   try {
     return serializeError(err);
@@ -8642,7 +8698,7 @@ function createChainable(keys2, fn2) {
     for (const key of keys2) {
       Object.defineProperty(chain2, key, {
         get() {
-          return create({ ...context, [key]: true });
+          return create(__spreadProps(__spreadValues({}, context), { [key]: true }));
         }
       });
     }
@@ -8699,11 +8755,13 @@ function collectTask(task) {
   var _a2;
   (_a2 = collectorContext.currentSuite) == null ? void 0 : _a2.tasks.push(task);
 }
-async function runWithSuite(suite2, fn2) {
-  const prev = collectorContext.currentSuite;
-  collectorContext.currentSuite = suite2;
-  await fn2();
-  collectorContext.currentSuite = prev;
+function runWithSuite(suite2, fn2) {
+  return __async(this, null, function* () {
+    const prev = collectorContext.currentSuite;
+    collectorContext.currentSuite = suite2;
+    yield fn2();
+    collectorContext.currentSuite = prev;
+  });
 }
 function withTimeout(fn2, timeout, isHook = false) {
   if (timeout <= 0 || timeout === Number.POSITIVE_INFINITY)
@@ -8786,35 +8844,39 @@ function withFixtures(fn2, testContext) {
     const pendingFixtures = resolveDeps(usedFixtures);
     let cursor = 0;
     return new Promise((resolve2, reject) => {
-      async function use2(fixtureValue) {
-        const fixture = pendingFixtures[cursor++];
-        context[fixture.prop] = fixtureValue;
-        if (!fixtureValueMap.has(fixture)) {
-          fixtureValueMap.set(fixture, fixtureValue);
-          cleanupFnArray.unshift(() => {
-            fixtureValueMap.delete(fixture);
-          });
-        }
-        if (cursor < pendingFixtures.length) {
-          await next();
-        } else {
-          try {
-            resolve2(await fn2(context));
-          } catch (err) {
-            reject(err);
+      function use2(fixtureValue) {
+        return __async(this, null, function* () {
+          const fixture = pendingFixtures[cursor++];
+          context[fixture.prop] = fixtureValue;
+          if (!fixtureValueMap.has(fixture)) {
+            fixtureValueMap.set(fixture, fixtureValue);
+            cleanupFnArray.unshift(() => {
+              fixtureValueMap.delete(fixture);
+            });
           }
-          return new Promise((resolve22) => {
-            cleanupFnArray.push(resolve22);
-          });
-        }
+          if (cursor < pendingFixtures.length) {
+            yield next();
+          } else {
+            try {
+              resolve2(yield fn2(context));
+            } catch (err) {
+              reject(err);
+            }
+            return new Promise((resolve22) => {
+              cleanupFnArray.push(resolve22);
+            });
+          }
+        });
       }
-      async function next() {
-        const fixture = pendingFixtures[cursor];
-        const { isFn, value } = fixture;
-        if (fixtureValueMap.has(fixture))
-          return use2(fixtureValueMap.get(fixture));
-        else
-          return isFn ? value(context, use2) : use2(value);
+      function next() {
+        return __async(this, null, function* () {
+          const fixture = pendingFixtures[cursor];
+          const { isFn, value } = fixture;
+          if (fixtureValueMap.has(fixture))
+            return use2(fixtureValueMap.get(fixture));
+          else
+            return isFn ? value(context, use2) : use2(value);
+        });
       }
       const setupFixturePromise = next();
       cleanupFnArray.unshift(() => setupFixturePromise);
@@ -8909,6 +8971,7 @@ function createSuiteCollector(name, factory = () => {
   let suite2;
   initSuite();
   const test22 = createTest(function(name2, fn2 = noop, options) {
+    var _a2, _b;
     const mode2 = this.only ? "only" : this.skip ? "skip" : this.todo ? "todo" : "run";
     if (typeof options === "number")
       options = { timeout: options };
@@ -8922,7 +8985,7 @@ function createSuiteCollector(name, factory = () => {
       mode: mode2,
       suite: void 0,
       fails: this.fails,
-      retry: (options == null ? void 0 : options.retry) ?? runner.config.retry,
+      retry: (_a2 = options == null ? void 0 : options.retry) != null ? _a2 : runner.config.retry,
       repeats: options == null ? void 0 : options.repeats,
       meta: /* @__PURE__ */ Object.create(null)
     };
@@ -8938,7 +9001,7 @@ function createSuiteCollector(name, factory = () => {
     setFixture(context, this.fixtures);
     setFn(test3, withTimeout(
       withFixtures(fn2, context),
-      (options == null ? void 0 : options.timeout) ?? runner.config.testTimeout
+      (_b = options == null ? void 0 : options.timeout) != null ? _b : runner.config.testTimeout
     ));
     tasks.push(test3);
   });
@@ -8989,21 +9052,23 @@ function createSuiteCollector(name, factory = () => {
     factoryQueue.length = 0;
     initSuite();
   }
-  async function collect(file) {
-    factoryQueue.length = 0;
-    if (factory)
-      await runWithSuite(collector, () => factory(test22));
-    const allChildren = [];
-    for (const i of [...factoryQueue, ...tasks])
-      allChildren.push(i.type === "collector" ? await i.collect(file) : i);
-    suite2.file = file;
-    suite2.tasks = allChildren;
-    allChildren.forEach((task) => {
-      task.suite = suite2;
-      if (file)
-        task.file = file;
+  function collect(file) {
+    return __async(this, null, function* () {
+      factoryQueue.length = 0;
+      if (factory)
+        yield runWithSuite(collector, () => factory(test22));
+      const allChildren = [];
+      for (const i of [...factoryQueue, ...tasks])
+        allChildren.push(i.type === "collector" ? yield i.collect(file) : i);
+      suite2.file = file;
+      suite2.tasks = allChildren;
+      allChildren.forEach((task) => {
+        task.suite = suite2;
+        if (file)
+          task.file = file;
+      });
+      return suite2;
     });
-    return suite2;
   }
   collectTask(collector);
   return collector;
@@ -9015,7 +9080,7 @@ function createSuite() {
     if (typeof options === "number")
       options = { timeout: options };
     if (currentSuite == null ? void 0 : currentSuite.options)
-      options = { ...currentSuite.options, ...options };
+      options = __spreadValues(__spreadValues({}, currentSuite.options), options);
     return createSuiteCollector(formatName(name), factory, mode, this.concurrent, this.sequence, this.shuffle, this.each, options);
   }
   suiteFn.each = function(cases, ...args) {
@@ -9115,16 +9180,16 @@ function getDefaultHookTimeout() {
   return getRunner().config.hookTimeout;
 }
 function beforeAll(fn2, timeout) {
-  return getCurrentSuite().on("beforeAll", withTimeout(fn2, timeout ?? getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("beforeAll", withTimeout(fn2, timeout != null ? timeout : getDefaultHookTimeout(), true));
 }
 function afterAll(fn2, timeout) {
-  return getCurrentSuite().on("afterAll", withTimeout(fn2, timeout ?? getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("afterAll", withTimeout(fn2, timeout != null ? timeout : getDefaultHookTimeout(), true));
 }
 function beforeEach(fn2, timeout) {
-  return getCurrentSuite().on("beforeEach", withTimeout(withFixtures(fn2), timeout ?? getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("beforeEach", withTimeout(withFixtures(fn2), timeout != null ? timeout : getDefaultHookTimeout(), true));
 }
 function afterEach(fn2, timeout) {
-  return getCurrentSuite().on("afterEach", withTimeout(withFixtures(fn2), timeout ?? getDefaultHookTimeout(), true));
+  return getCurrentSuite().on("afterEach", withTimeout(withFixtures(fn2), timeout != null ? timeout : getDefaultHookTimeout(), true));
 }
 var onTestFailed = createTestHook("onTestFailed", (test3, handler) => {
   test3.onFailed || (test3.onFailed = []);
@@ -9270,10 +9335,10 @@ function E(e, t, n2) {
   let f;
   s ? f = s[i] : i !== "value" ? f = () => e[r] : f = e[r], n2 || (n2 = f);
   let S = T(n2), O = (w) => {
-    let { value: G, ...k } = s || {
+    let _a2 = s || {
       configurable: true,
       writable: true
-    };
+    }, { value: G } = _a2, k = __objRest(_a2, ["value"]);
     i !== "value" && delete k.writable, k[i] = w, d(e, r, k);
   }, K = () => s ? d(e, r, s) : O(f), A = S[u];
   return p(A, "restore", K), p(A, "getOriginal", () => l ? f() : f), p(A, "willCall", (w) => (A.impl = w, S)), O(l ? () => S : S), I.add(S), S;
@@ -9744,7 +9809,7 @@ function arrayBufferEquality(a, b2) {
     try {
       dataViewA = new DataView(a);
       dataViewB = new DataView(b2);
-    } catch {
+    } catch (e) {
       return void 0;
     }
   }
@@ -9783,18 +9848,16 @@ var AsymmetricMatcher3 = class {
     this.inverse = inverse;
   }
   getMatcherContext(expect2) {
-    return {
-      ...getState(expect2 || globalThis[GLOBAL_EXPECT]),
+    return __spreadProps(__spreadValues({}, getState(expect2 || globalThis[GLOBAL_EXPECT])), {
       equals,
       isNot: this.inverse,
-      utils: {
-        ...getMatcherUtils(),
+      utils: __spreadProps(__spreadValues({}, getMatcherUtils()), {
         diff,
         stringify,
         iterableEquality,
         subsetEquality
-      }
-    };
+      })
+    });
   }
 };
 var StringContaining = class extends AsymmetricMatcher3 {
@@ -10632,7 +10695,7 @@ Number of calls: ${c().bold(spy.mock.calls.length)}
         const result = Reflect.get(target, key, receiver);
         if (typeof result !== "function")
           return result instanceof chai3.Assertion ? proxy : result;
-        return async (...args) => {
+        return (...args) => __async(this, null, function* () {
           const promise = obj.then(
             (value) => {
               utils.flag(this, "object", value);
@@ -10648,7 +10711,7 @@ Number of calls: ${c().bold(spy.mock.calls.length)}
             }
           );
           return recordAsyncExpect(test3, promise);
-        };
+        });
       }
     });
     return proxy;
@@ -10667,7 +10730,7 @@ Number of calls: ${c().bold(spy.mock.calls.length)}
         const result = Reflect.get(target, key, receiver);
         if (typeof result !== "function")
           return result instanceof chai3.Assertion ? proxy : result;
-        return async (...args) => {
+        return (...args) => __async(this, null, function* () {
           const promise = wrapper.then(
             (value) => {
               const _error = new AssertionError2(
@@ -10683,7 +10746,7 @@ Number of calls: ${c().bold(spy.mock.calls.length)}
             }
           );
           return recordAsyncExpect(test3, promise);
-        };
+        });
       }
     });
     return proxy;
@@ -10693,22 +10756,20 @@ function getMatcherState(assertion, expect2) {
   const obj = assertion._obj;
   const isNot = util.flag(assertion, "negate");
   const promise = util.flag(assertion, "promise") || "";
-  const jestUtils = {
-    ...getMatcherUtils(),
+  const jestUtils = __spreadProps(__spreadValues({}, getMatcherUtils()), {
     diff,
     stringify,
     iterableEquality,
     subsetEquality
-  };
-  const matcherState = {
-    ...getState(expect2),
+  });
+  const matcherState = __spreadProps(__spreadValues({}, getState(expect2)), {
     isNot,
     utils: jestUtils,
     promise,
     equals,
     // needed for built-in jest-snapshots, but we don't use it
     suppressedErrors: []
-  };
+  });
   return {
     state: matcherState,
     isNot,
@@ -10962,7 +11023,7 @@ function getSnapshotData(content, options) {
       snapshotContents = content;
       const populate = new Function("exports", snapshotContents);
       populate(data);
-    } catch {
+    } catch (e) {
     }
   }
   const isInvalid = snapshotContents;
@@ -10982,13 +11043,12 @@ var escapeRegex = true;
 var printFunctionName = false;
 function serialize(val, indent = 2, formatOverrides = {}) {
   return normalizeNewlines(
-    (0, import_pretty_format5.format)(val, {
+    (0, import_pretty_format5.format)(val, __spreadValues({
       escapeRegex,
       indent,
       plugins: getSerializers(),
-      printFunctionName,
-      ...formatOverrides
-    })
+      printFunctionName
+    }, formatOverrides))
   );
 }
 function escapeBacktickString(str) {
@@ -11000,22 +11060,24 @@ function printBacktickString(str) {
 function normalizeNewlines(string3) {
   return string3.replace(/\r\n|\r/g, "\n");
 }
-async function saveSnapshotFile(environment, snapshotData, snapshotPath) {
-  const snapshots = Object.keys(snapshotData).sort(naturalCompare$1).map(
-    (key) => `exports[${printBacktickString(key)}] = ${printBacktickString(normalizeNewlines(snapshotData[key]))};`
-  );
-  const content = `${environment.getHeader()}
+function saveSnapshotFile(environment, snapshotData, snapshotPath) {
+  return __async(this, null, function* () {
+    const snapshots = Object.keys(snapshotData).sort(naturalCompare$1).map(
+      (key) => `exports[${printBacktickString(key)}] = ${printBacktickString(normalizeNewlines(snapshotData[key]))};`
+    );
+    const content = `${environment.getHeader()}
 
 ${snapshots.join("\n\n")}
 `;
-  const oldContent = await environment.readSnapshotFile(snapshotPath);
-  const skipWriting = oldContent != null && oldContent === content;
-  if (skipWriting)
-    return;
-  await environment.saveSnapshotFile(
-    snapshotPath,
-    content
-  );
+    const oldContent = yield environment.readSnapshotFile(snapshotPath);
+    const skipWriting = oldContent != null && oldContent === content;
+    if (skipWriting)
+      return;
+    yield environment.saveSnapshotFile(
+      snapshotPath,
+      content
+    );
+  });
 }
 function prepareExpected(expected) {
   function findStartIndent() {
@@ -11050,7 +11112,7 @@ function deepMergeArray(target = [], source = []) {
 }
 function deepMergeSnapshot(target, source) {
   if (isObject3(target) && isObject3(source)) {
-    const mergedOutput = { ...target };
+    const mergedOutput = __spreadValues({}, target);
     Object.keys(source).forEach((key) => {
       if (isObject3(source[key]) && !source[key].$$typeof) {
         if (!(key in target))
@@ -11690,7 +11752,7 @@ function parseStacktrace(stack, options = {}) {
     const traceMap = new TraceMap(map2);
     const { line, column } = originalPositionFor(traceMap, stack2);
     if (line != null && column != null)
-      return { ...stack2, line, column };
+      return __spreadProps(__spreadValues({}, stack2), { line, column });
     return stack2;
   });
 }
@@ -11710,21 +11772,23 @@ function parseErrorStacktrace(e, options = {}) {
   e.stacks = stackFrames;
   return stackFrames;
 }
-async function saveInlineSnapshots(environment, snapshots) {
-  const MagicString2 = (await Promise.resolve().then(() => (init_magic_string_es(), magic_string_es_exports))).default;
-  const files = new Set(snapshots.map((i) => i.file));
-  await Promise.all(Array.from(files).map(async (file) => {
-    const snaps = snapshots.filter((i) => i.file === file);
-    const code = await environment.readSnapshotFile(file);
-    const s = new MagicString2(code);
-    for (const snap of snaps) {
-      const index2 = positionToOffset(code, snap.line, snap.column);
-      replaceInlineSnap(code, s, index2, snap.snapshot);
-    }
-    const transformed = s.toString();
-    if (transformed !== code)
-      await environment.saveSnapshotFile(file, transformed);
-  }));
+function saveInlineSnapshots(environment, snapshots) {
+  return __async(this, null, function* () {
+    const MagicString2 = (yield Promise.resolve().then(() => (init_magic_string_es(), magic_string_es_exports))).default;
+    const files = new Set(snapshots.map((i) => i.file));
+    yield Promise.all(Array.from(files).map((file) => __async(this, null, function* () {
+      const snaps = snapshots.filter((i) => i.file === file);
+      const code = yield environment.readSnapshotFile(file);
+      const s = new MagicString2(code);
+      for (const snap of snaps) {
+        const index2 = positionToOffset(code, snap.line, snap.column);
+        replaceInlineSnap(code, s, index2, snap.snapshot);
+      }
+      const transformed = s.toString();
+      if (transformed !== code)
+        yield environment.saveSnapshotFile(file, transformed);
+    })));
+  });
 }
 var startObjectRegex = /(?:toMatchInlineSnapshot|toThrowErrorMatchingInlineSnapshot)\s*\(\s*(?:\/\*[\S\s]*\*\/\s*|\/\/.*\s+)*\s*({)/m;
 function replaceObjectSnap(code, s, index2, newSnap) {
@@ -11822,11 +11886,13 @@ function stripSnapshotIndentation(inlineSnapshot) {
   inlineSnapshot = lines.join("\n");
   return inlineSnapshot;
 }
-async function saveRawSnapshots(environment, snapshots) {
-  await Promise.all(snapshots.map(async (snap) => {
-    if (!snap.readonly)
-      await environment.saveSnapshotFile(snap.file, snap.snapshot);
-  }));
+function saveRawSnapshots(environment, snapshots) {
+  return __async(this, null, function* () {
+    yield Promise.all(snapshots.map((snap) => __async(this, null, function* () {
+      if (!snap.readonly)
+        yield environment.saveSnapshotFile(snap.file, snap.snapshot);
+    })));
+  });
 }
 var SnapshotState = class _SnapshotState {
   constructor(testFilePath, snapshotPath, snapshotContent, options) {
@@ -11866,16 +11932,17 @@ var SnapshotState = class _SnapshotState {
     this.unmatched = 0;
     this._updateSnapshot = options.updateSnapshot;
     this.updated = 0;
-    this._snapshotFormat = {
-      printBasicPrototype: false,
-      ...options.snapshotFormat
-    };
+    this._snapshotFormat = __spreadValues({
+      printBasicPrototype: false
+    }, options.snapshotFormat);
     this._environment = options.snapshotEnvironment;
   }
-  static async create(testFilePath, options) {
-    const snapshotPath = await options.snapshotEnvironment.resolvePath(testFilePath);
-    const content = await options.snapshotEnvironment.readSnapshotFile(snapshotPath);
-    return new _SnapshotState(testFilePath, snapshotPath, content, options);
+  static create(testFilePath, options) {
+    return __async(this, null, function* () {
+      const snapshotPath = yield options.snapshotEnvironment.resolvePath(testFilePath);
+      const content = yield options.snapshotEnvironment.readSnapshotFile(snapshotPath);
+      return new _SnapshotState(testFilePath, snapshotPath, content, options);
+    });
   }
   get environment() {
     return this._environment;
@@ -11905,15 +11972,13 @@ ${JSON.stringify(stacks)}`
         );
       }
       stack.column--;
-      this._inlineSnapshots.push({
-        snapshot: receivedSerialized,
-        ...stack
-      });
-    } else if (options.rawSnapshot) {
-      this._rawSnapshots.push({
-        ...options.rawSnapshot,
+      this._inlineSnapshots.push(__spreadValues({
         snapshot: receivedSerialized
-      });
+      }, stack));
+    } else if (options.rawSnapshot) {
+      this._rawSnapshots.push(__spreadProps(__spreadValues({}, options.rawSnapshot), {
+        snapshot: receivedSerialized
+      }));
     } else {
       this._snapshotData[key] = receivedSerialized;
     }
@@ -11927,33 +11992,35 @@ ${JSON.stringify(stacks)}`
     this.updated = 0;
     this._dirty = false;
   }
-  async save() {
-    const hasExternalSnapshots = Object.keys(this._snapshotData).length;
-    const hasInlineSnapshots = this._inlineSnapshots.length;
-    const hasRawSnapshots = this._rawSnapshots.length;
-    const isEmpty = !hasExternalSnapshots && !hasInlineSnapshots && !hasRawSnapshots;
-    const status = {
-      deleted: false,
-      saved: false
-    };
-    if ((this._dirty || this._uncheckedKeys.size) && !isEmpty) {
-      if (hasExternalSnapshots) {
-        await saveSnapshotFile(this._environment, this._snapshotData, this.snapshotPath);
-        this._fileExists = true;
+  save() {
+    return __async(this, null, function* () {
+      const hasExternalSnapshots = Object.keys(this._snapshotData).length;
+      const hasInlineSnapshots = this._inlineSnapshots.length;
+      const hasRawSnapshots = this._rawSnapshots.length;
+      const isEmpty = !hasExternalSnapshots && !hasInlineSnapshots && !hasRawSnapshots;
+      const status = {
+        deleted: false,
+        saved: false
+      };
+      if ((this._dirty || this._uncheckedKeys.size) && !isEmpty) {
+        if (hasExternalSnapshots) {
+          yield saveSnapshotFile(this._environment, this._snapshotData, this.snapshotPath);
+          this._fileExists = true;
+        }
+        if (hasInlineSnapshots)
+          yield saveInlineSnapshots(this._environment, this._inlineSnapshots);
+        if (hasRawSnapshots)
+          yield saveRawSnapshots(this._environment, this._rawSnapshots);
+        status.saved = true;
+      } else if (!hasExternalSnapshots && this._fileExists) {
+        if (this._updateSnapshot === "all") {
+          yield this._environment.removeSnapshotFile(this.snapshotPath);
+          this._fileExists = false;
+        }
+        status.deleted = true;
       }
-      if (hasInlineSnapshots)
-        await saveInlineSnapshots(this._environment, this._inlineSnapshots);
-      if (hasRawSnapshots)
-        await saveRawSnapshots(this._environment, this._rawSnapshots);
-      status.saved = true;
-    } else if (!hasExternalSnapshots && this._fileExists) {
-      if (this._updateSnapshot === "all") {
-        await this._environment.removeSnapshotFile(this.snapshotPath);
-        this._fileExists = false;
-      }
-      status.deleted = true;
-    }
-    return status;
+      return status;
+    });
   }
   getUncheckedCount() {
     return this._uncheckedKeys.size || 0;
@@ -12042,30 +12109,32 @@ ${JSON.stringify(stacks)}`
       }
     }
   }
-  async pack() {
-    const snapshot = {
-      filepath: this.testFilePath,
-      added: 0,
-      fileDeleted: false,
-      matched: 0,
-      unchecked: 0,
-      uncheckedKeys: [],
-      unmatched: 0,
-      updated: 0
-    };
-    const uncheckedCount = this.getUncheckedCount();
-    const uncheckedKeys = this.getUncheckedKeys();
-    if (uncheckedCount)
-      this.removeUncheckedKeys();
-    const status = await this.save();
-    snapshot.fileDeleted = status.deleted;
-    snapshot.added = this.added;
-    snapshot.matched = this.matched;
-    snapshot.unmatched = this.unmatched;
-    snapshot.updated = this.updated;
-    snapshot.unchecked = !status.deleted ? uncheckedCount : 0;
-    snapshot.uncheckedKeys = Array.from(uncheckedKeys);
-    return snapshot;
+  pack() {
+    return __async(this, null, function* () {
+      const snapshot = {
+        filepath: this.testFilePath,
+        added: 0,
+        fileDeleted: false,
+        matched: 0,
+        unchecked: 0,
+        uncheckedKeys: [],
+        unmatched: 0,
+        updated: 0
+      };
+      const uncheckedCount = this.getUncheckedCount();
+      const uncheckedKeys = this.getUncheckedKeys();
+      if (uncheckedCount)
+        this.removeUncheckedKeys();
+      const status = yield this.save();
+      snapshot.fileDeleted = status.deleted;
+      snapshot.added = this.added;
+      snapshot.matched = this.matched;
+      snapshot.unmatched = this.unmatched;
+      snapshot.updated = this.updated;
+      snapshot.unchecked = !status.deleted ? uncheckedCount : 0;
+      snapshot.uncheckedKeys = Array.from(uncheckedKeys);
+      return snapshot;
+    });
   }
 };
 function createMismatchError(message, actual, expected) {
@@ -12092,23 +12161,25 @@ var SnapshotClient = class {
     __publicField(this, "snapshotStateMap", /* @__PURE__ */ new Map());
     this.Service = Service;
   }
-  async setTest(filepath, name, options) {
-    var _a2;
-    this.filepath = filepath;
-    this.name = name;
-    if (((_a2 = this.snapshotState) == null ? void 0 : _a2.testFilePath) !== filepath) {
-      this.resetCurrent();
-      if (!this.getSnapshotState(filepath)) {
-        this.snapshotStateMap.set(
-          filepath,
-          await this.Service.create(
+  setTest(filepath, name, options) {
+    return __async(this, null, function* () {
+      var _a2;
+      this.filepath = filepath;
+      this.name = name;
+      if (((_a2 = this.snapshotState) == null ? void 0 : _a2.testFilePath) !== filepath) {
+        this.resetCurrent();
+        if (!this.getSnapshotState(filepath)) {
+          this.snapshotStateMap.set(
             filepath,
-            options
-          )
-        );
+            yield this.Service.create(
+              filepath,
+              options
+            )
+          );
+        }
+        this.snapshotState = this.getSnapshotState(filepath);
       }
-      this.snapshotState = this.getSnapshotState(filepath);
-    }
+    });
   }
   getSnapshotState(filepath) {
     return this.snapshotStateMap.get(filepath);
@@ -12174,29 +12245,33 @@ var SnapshotClient = class {
     if (!pass)
       throw createMismatchError(`Snapshot \`${key || "unknown"}\` mismatched`, actual == null ? void 0 : actual.trim(), expected == null ? void 0 : expected.trim());
   }
-  async assertRaw(options) {
-    if (!options.rawSnapshot)
-      throw new Error("Raw snapshot is required");
-    const {
-      filepath = this.filepath,
-      rawSnapshot
-    } = options;
-    if (rawSnapshot.content == null) {
-      if (!filepath)
-        throw new Error("Snapshot cannot be used outside of test");
-      const snapshotState = this.getSnapshotState(filepath);
-      options.filepath || (options.filepath = filepath);
-      rawSnapshot.file = await snapshotState.environment.resolveRawPath(filepath, rawSnapshot.file);
-      rawSnapshot.content = await snapshotState.environment.readSnapshotFile(rawSnapshot.file) || void 0;
-    }
-    return this.assert(options);
+  assertRaw(options) {
+    return __async(this, null, function* () {
+      if (!options.rawSnapshot)
+        throw new Error("Raw snapshot is required");
+      const {
+        filepath = this.filepath,
+        rawSnapshot
+      } = options;
+      if (rawSnapshot.content == null) {
+        if (!filepath)
+          throw new Error("Snapshot cannot be used outside of test");
+        const snapshotState = this.getSnapshotState(filepath);
+        options.filepath || (options.filepath = filepath);
+        rawSnapshot.file = yield snapshotState.environment.resolveRawPath(filepath, rawSnapshot.file);
+        rawSnapshot.content = (yield snapshotState.environment.readSnapshotFile(rawSnapshot.file)) || void 0;
+      }
+      return this.assert(options);
+    });
   }
-  async resetCurrent() {
-    if (!this.snapshotState)
-      return null;
-    const result = await this.snapshotState.pack();
-    this.snapshotState = void 0;
-    return result;
+  resetCurrent() {
+    return __async(this, null, function* () {
+      if (!this.snapshotState)
+        return null;
+      const result = yield this.snapshotState.pack();
+      this.snapshotState = void 0;
+      return result;
+    });
   }
   clear() {
     this.snapshotStateMap.clear();
@@ -12732,21 +12807,23 @@ function waitNextTick() {
   const { setTimeout } = getSafeTimers();
   return new Promise((resolve2) => setTimeout(resolve2, 0));
 }
-async function waitForImportsToResolve() {
-  await waitNextTick();
-  const state = getWorkerState();
-  const promises = [];
-  let resolvingCount = 0;
-  for (const mod of state.moduleCache.values()) {
-    if (mod.promise && !mod.evaluated)
-      promises.push(mod.promise);
-    if (mod.resolving)
-      resolvingCount++;
-  }
-  if (!promises.length && !resolvingCount)
-    return;
-  await Promise.allSettled(promises);
-  await waitForImportsToResolve();
+function waitForImportsToResolve() {
+  return __async(this, null, function* () {
+    yield waitNextTick();
+    const state = getWorkerState();
+    const promises = [];
+    let resolvingCount = 0;
+    for (const mod of state.moduleCache.values()) {
+      if (mod.promise && !mod.evaluated)
+        promises.push(mod.promise);
+      if (mod.resolving)
+        resolvingCount++;
+    }
+    if (!promises.length && !resolvingCount)
+      return;
+    yield Promise.allSettled(promises);
+    yield waitForImportsToResolve();
+  });
 }
 var benchFns = /* @__PURE__ */ new WeakMap();
 var benchOptsMap = /* @__PURE__ */ new WeakMap();
@@ -12934,14 +13011,13 @@ var SnapshotPlugin = (chai3, utils) => {
           properties = void 0;
         }
         const errorMessage = utils.flag(this, "message");
-        getSnapshotClient().assert({
+        getSnapshotClient().assert(__spreadValues({
           received: expected,
           message,
           isInline: false,
           properties,
-          errorMessage,
-          ...getTestNames(test3)
-        });
+          errorMessage
+        }, getTestNames(test3)));
       }
     );
   }
@@ -12952,16 +13028,15 @@ var SnapshotPlugin = (chai3, utils) => {
       const expected = utils.flag(this, "object");
       const test3 = utils.flag(this, "vitest-test");
       const errorMessage = utils.flag(this, "message");
-      const promise = getSnapshotClient().assertRaw({
+      const promise = getSnapshotClient().assertRaw(__spreadValues({
         received: expected,
         message,
         isInline: false,
         rawSnapshot: {
           file
         },
-        errorMessage,
-        ...getTestNames(test3)
-      });
+        errorMessage
+      }, getTestNames(test3)));
       return recordAsyncExpect2(test3, promise);
     }
   );
@@ -12984,16 +13059,15 @@ var SnapshotPlugin = (chai3, utils) => {
       if (inlineSnapshot)
         inlineSnapshot = stripSnapshotIndentation(inlineSnapshot);
       const errorMessage = utils.flag(this, "message");
-      getSnapshotClient().assert({
+      getSnapshotClient().assert(__spreadValues({
         received: expected,
         message,
         isInline: true,
         properties,
         inlineSnapshot,
         error,
-        errorMessage,
-        ...getTestNames(test3)
-      });
+        errorMessage
+      }, getTestNames(test3)));
     }
   );
   utils.addMethod(
@@ -13004,12 +13078,11 @@ var SnapshotPlugin = (chai3, utils) => {
       const test3 = utils.flag(this, "vitest-test");
       const promise = utils.flag(this, "promise");
       const errorMessage = utils.flag(this, "message");
-      getSnapshotClient().assert({
+      getSnapshotClient().assert(__spreadValues({
         received: getErrorString(expected, promise),
         message,
-        errorMessage,
-        ...getTestNames(test3)
-      });
+        errorMessage
+      }, getTestNames(test3)));
     }
   );
   utils.addMethod(
@@ -13025,15 +13098,14 @@ var SnapshotPlugin = (chai3, utils) => {
       const error = utils.flag(this, "error");
       const promise = utils.flag(this, "promise");
       const errorMessage = utils.flag(this, "message");
-      getSnapshotClient().assert({
+      getSnapshotClient().assert(__spreadValues({
         received: getErrorString(expected, promise),
         message,
         inlineSnapshot,
         isInline: true,
         error,
-        errorMessage,
-        ...getTestNames(test3)
-      });
+        errorMessage
+      }, getTestNames(test3)));
     }
   );
   utils.addMethod(
@@ -13063,9 +13135,7 @@ function createExpect(test3) {
   expect2.getState = () => getState(expect2);
   expect2.setState = (state) => setState(state, expect2);
   const globalState = getState(globalThis[GLOBAL_EXPECT]) || {};
-  setState({
-    // this should also add "snapshotState" that is added conditionally
-    ...globalState,
+  setState(__spreadProps(__spreadValues({}, globalState), {
     assertionCalls: 0,
     isExpectingAssertions: false,
     isExpectingAssertionsError: null,
@@ -13074,7 +13144,7 @@ function createExpect(test3) {
     environment: getCurrentEnvironment(),
     testPath: test3 ? (_a2 = test3.suite.file) == null ? void 0 : _a2.filepath : globalState.testPath,
     currentTestName: test3 ? getFullName(test3) : globalState.currentTestName
-  }, expect2);
+  }), expect2);
   expect2.extend = (matchers) => expect.extend(expect2, matchers);
   expect2.soft = (...args) => {
     const assert2 = expect2(...args);
@@ -14571,17 +14641,21 @@ var FakeTimers = class {
     if (this._checkFakeTimers())
       this._clock.runAll();
   }
-  async runAllTimersAsync() {
-    if (this._checkFakeTimers())
-      await this._clock.runAllAsync();
+  runAllTimersAsync() {
+    return __async(this, null, function* () {
+      if (this._checkFakeTimers())
+        yield this._clock.runAllAsync();
+    });
   }
   runOnlyPendingTimers() {
     if (this._checkFakeTimers())
       this._clock.runToLast();
   }
-  async runOnlyPendingTimersAsync() {
-    if (this._checkFakeTimers())
-      await this._clock.runToLastAsync();
+  runOnlyPendingTimersAsync() {
+    return __async(this, null, function* () {
+      if (this._checkFakeTimers())
+        yield this._clock.runToLastAsync();
+    });
   }
   advanceTimersToNextTimer(steps = 1) {
     if (this._checkFakeTimers()) {
@@ -14593,23 +14667,27 @@ var FakeTimers = class {
       }
     }
   }
-  async advanceTimersToNextTimerAsync(steps = 1) {
-    if (this._checkFakeTimers()) {
-      for (let i = steps; i > 0; i--) {
-        await this._clock.nextAsync();
-        this._clock.tick(0);
-        if (this._clock.countTimers() === 0)
-          break;
+  advanceTimersToNextTimerAsync(steps = 1) {
+    return __async(this, null, function* () {
+      if (this._checkFakeTimers()) {
+        for (let i = steps; i > 0; i--) {
+          yield this._clock.nextAsync();
+          this._clock.tick(0);
+          if (this._clock.countTimers() === 0)
+            break;
+        }
       }
-    }
+    });
   }
   advanceTimersByTime(msToRun) {
     if (this._checkFakeTimers())
       this._clock.tick(msToRun);
   }
-  async advanceTimersByTimeAsync(msToRun) {
-    if (this._checkFakeTimers())
-      await this._clock.tickAsync(msToRun);
+  advanceTimersByTimeAsync(msToRun) {
+    return __async(this, null, function* () {
+      if (this._checkFakeTimers())
+        yield this._clock.tickAsync(msToRun);
+    });
   }
   runAllTicks() {
     if (this._checkFakeTimers()) {
@@ -14634,11 +14712,10 @@ var FakeTimers = class {
     }
     if (!this._fakingTime) {
       const toFake = Object.keys(this._fakeTimers.timers);
-      this._clock = this._fakeTimers.install({
+      this._clock = this._fakeTimers.install(__spreadValues({
         now: Date.now(),
-        toFake,
-        ...this._userConfig
-      });
+        toFake
+      }, this._userConfig));
       this._fakingTime = true;
     }
   }
@@ -14653,7 +14730,7 @@ var FakeTimers = class {
     if (this._fakingTime) {
       this._clock.setSystemTime(now3);
     } else {
-      mockDate(now3 ?? this.getRealSystemTime());
+      mockDate(now3 != null ? now3 : this.getRealSystemTime());
       this._fakingDate = true;
     }
   }
@@ -14847,17 +14924,21 @@ function createVitest() {
       _timers.runOnlyPendingTimers();
       return utils;
     },
-    async runOnlyPendingTimersAsync() {
-      await _timers.runOnlyPendingTimersAsync();
-      return utils;
+    runOnlyPendingTimersAsync() {
+      return __async(this, null, function* () {
+        yield _timers.runOnlyPendingTimersAsync();
+        return utils;
+      });
     },
     runAllTimers() {
       _timers.runAllTimers();
       return utils;
     },
-    async runAllTimersAsync() {
-      await _timers.runAllTimersAsync();
-      return utils;
+    runAllTimersAsync() {
+      return __async(this, null, function* () {
+        yield _timers.runAllTimersAsync();
+        return utils;
+      });
     },
     runAllTicks() {
       _timers.runAllTicks();
@@ -14867,17 +14948,21 @@ function createVitest() {
       _timers.advanceTimersByTime(ms);
       return utils;
     },
-    async advanceTimersByTimeAsync(ms) {
-      await _timers.advanceTimersByTimeAsync(ms);
-      return utils;
+    advanceTimersByTimeAsync(ms) {
+      return __async(this, null, function* () {
+        yield _timers.advanceTimersByTimeAsync(ms);
+        return utils;
+      });
     },
     advanceTimersToNextTimer() {
       _timers.advanceTimersToNextTimer();
       return utils;
     },
-    async advanceTimersToNextTimerAsync() {
-      await _timers.advanceTimersToNextTimerAsync();
-      return utils;
+    advanceTimersToNextTimerAsync() {
+      return __async(this, null, function* () {
+        yield _timers.advanceTimersToNextTimerAsync();
+        return utils;
+      });
     },
     getTimerCount() {
       return _timers.getTimerCount();
@@ -14924,11 +15009,15 @@ function createVitest() {
     doUnmock(path) {
       _mocker.queueUnmock(path, getImporter());
     },
-    async importActual(path) {
-      return _mocker.importActual(path, getImporter());
+    importActual(path) {
+      return __async(this, null, function* () {
+        return _mocker.importActual(path, getImporter());
+      });
     },
-    async importMock(path) {
-      return _mocker.importMock(path, getImporter());
+    importMock(path) {
+      return __async(this, null, function* () {
+        return _mocker.importMock(path, getImporter());
+      });
     },
     mocked(item, _options = {}) {
       return item;
@@ -14990,13 +15079,15 @@ function createVitest() {
       resetModules(state.moduleCache);
       return utils;
     },
-    async dynamicImportSettled() {
-      return waitForImportsToResolve();
+    dynamicImportSettled() {
+      return __async(this, null, function* () {
+        return waitForImportsToResolve();
+      });
     },
     setConfig(config2) {
       const state = getWorkerState();
       if (!_config)
-        _config = { ...state.config };
+        _config = __spreadValues({}, state.config);
       Object.assign(state.config, config2);
     },
     resetConfig() {
@@ -15153,24 +15244,28 @@ var CitySearchService = class {
     this.citySearchRepository = citySearchRepository;
     this.techSearchService = techSearchService;
   }
-  async getTop5Cities() {
-    try {
-      const cities = await this.citySearchRepository.find({});
-      cities.sort(
-        (a, b2) => b2.count - a.count
-      );
-      return cities.slice(0, 5).map((city) => city.name);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5Cities() {
+    return __async(this, null, function* () {
+      try {
+        const cities = yield this.citySearchRepository.find({});
+        cities.sort(
+          (a, b2) => b2.count - a.count
+        );
+        return cities.slice(0, 5).map((city) => city.name);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async getTop5CitiesForMostSearchedTech() {
-    try {
-      const topTech = await this.citySearchRepository.getTopTechnology();
-      return await this.citySearchRepository.getTopCitiesForTechnology(topTech);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  getTop5CitiesForMostSearchedTech() {
+    return __async(this, null, function* () {
+      try {
+        const topTech = yield this.citySearchRepository.getTopTechnology();
+        return yield this.citySearchRepository.getTopCitiesForTechnology(topTech);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 
@@ -15187,7 +15282,7 @@ var sut = new CitySearchService(
 );
 describe("CitySearchService", () => {
   describe("function getTop5Cities()", () => {
-    it("Should return top 5 cities", async () => {
+    it("Should return top 5 cities", () => __async(void 0, null, function* () {
       const citiesMock = [
         { name: "City1", count: 5 },
         { name: "City2", count: 4 },
@@ -15197,7 +15292,7 @@ describe("CitySearchService", () => {
         { name: "City6", count: 0 }
       ];
       vi.spyOn(citySearchRepositoryMock, "find").mockReturnValue(citiesMock);
-      const result = await sut.getTop5Cities();
+      const result = yield sut.getTop5Cities();
       globalExpect(result).toStrictEqual([
         "City1",
         "City2",
@@ -15205,20 +15300,20 @@ describe("CitySearchService", () => {
         "City4",
         "City5"
       ]);
-    });
-    it("Should return error when an exception is thrown", async () => {
+    }));
+    it("Should return error when an exception is thrown", () => __async(void 0, null, function* () {
       const errorMock = new Error("Error message");
       vi.spyOn(citySearchRepositoryMock, "find").mockImplementation(() => {
         throw errorMock;
       });
-      const result = await sut.getTop5Cities();
+      const result = yield sut.getTop5Cities();
       globalExpect(result).toStrictEqual(
         CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
       );
-    });
+    }));
   });
   describe("function getTop5CitiesForMostSearchedTech()", () => {
-    it("Should return top 5 cities for most searched tech", async () => {
+    it("Should return top 5 cities for most searched tech", () => __async(void 0, null, function* () {
       const topTechMock = "Tech1";
       const topCitiesMock = ["City1", "City2", "City3", "City4", "City5"];
       vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockReturnValue(
@@ -15228,21 +15323,21 @@ describe("CitySearchService", () => {
         citySearchRepositoryMock,
         "getTopCitiesForTechnology"
       ).mockReturnValue(topCitiesMock);
-      const result = await sut.getTop5CitiesForMostSearchedTech();
+      const result = yield sut.getTop5CitiesForMostSearchedTech();
       globalExpect(result).toStrictEqual(topCitiesMock);
-    });
-    it("Should return error when an exception is thrown", async () => {
+    }));
+    it("Should return error when an exception is thrown", () => __async(void 0, null, function* () {
       const errorMock = new Error("Error message");
       vi.spyOn(citySearchRepositoryMock, "getTopTechnology").mockImplementation(
         () => {
           throw errorMock;
         }
       );
-      const result = await sut.getTop5CitiesForMostSearchedTech();
+      const result = yield sut.getTop5CitiesForMostSearchedTech();
       globalExpect(result).toStrictEqual(
         CommonError.build(errorMock.message, STATUS_CODE.INTERNAL_SERVER_ERROR)
       );
-    });
+    }));
   });
 });
 /*! Bundled license information:

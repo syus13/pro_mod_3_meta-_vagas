@@ -26,6 +26,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/user/UserController.ts
 var UserController_exports = {};
@@ -62,40 +82,44 @@ var STATUS_CODE = {
 
 // src/utils/Validations/user/UserValidation.ts
 var UserValidation = class {
-  static async isValid(data) {
-    const validation = yup.object().shape({
-      name: yup.string().required(),
-      password: yup.string().required(),
-      email: yup.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup.object().shape({
+        name: yup.string().required(),
+        password: yup.string().required(),
+        email: yup.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
 // src/utils/Validations/user/UpdateValidation.ts
 var yup2 = __toESM(require("yup"), 1);
 var UpdateValidation = class {
-  static async isValid(data) {
-    const validation = yup2.object().shape({
-      name: yup2.string().required(),
-      password: yup2.string().required(),
-      email: yup2.string().email().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup2.object().shape({
+        name: yup2.string().required(),
+        password: yup2.string().required(),
+        email: yup2.string().email().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(
+          erro.messages,
+          STATUS_CODE.INTERNAL_SERVER_ERROR
+        );
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(
-        erro.messages,
-        STATUS_CODE.INTERNAL_SERVER_ERROR
-      );
-    }
   }
 };
 
@@ -104,50 +128,58 @@ var UserController = class {
   constructor(service) {
     this.service = service;
   }
-  async create(req, res) {
-    const { body } = req;
-    const bodyIsValid = await UserValidation.isValid(body);
-    if (bodyIsValid && bodyIsValid.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
-    }
-    const user = await this.service.create(body);
-    if ("error" in user) {
-      return res.status(STATUS_CODE.CONFLICT).json(user);
-    }
-    return res.status(STATUS_CODE.CREATED).json(user);
+  create(req, res) {
+    return __async(this, null, function* () {
+      const { body } = req;
+      const bodyIsValid = yield UserValidation.isValid(body);
+      if (bodyIsValid && bodyIsValid.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(bodyIsValid.message, STATUS_CODE.BAD_REQUEST));
+      }
+      const user = yield this.service.create(body);
+      if ("error" in user) {
+        return res.status(STATUS_CODE.CONFLICT).json(user);
+      }
+      return res.status(STATUS_CODE.CREATED).json(user);
+    });
   }
-  async update(req, res) {
-    const {
-      body,
-      params: { id }
-    } = req;
-    const updateValidation = await UpdateValidation.isValid(body);
-    if (updateValidation && updateValidation.error) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(
-        CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
-      );
-    }
-    const result = await this.service.update(id, body);
-    if ("error" in result) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(result);
+  update(req, res) {
+    return __async(this, null, function* () {
+      const {
+        body,
+        params: { id }
+      } = req;
+      const updateValidation = yield UpdateValidation.isValid(body);
+      if (updateValidation && updateValidation.error) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(
+          CommonError.build(updateValidation.message, STATUS_CODE.BAD_REQUEST)
+        );
+      }
+      const result = yield this.service.update(id, body);
+      if ("error" in result) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build(result.message, STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(result);
+    });
   }
-  async getFavoriteJobs(req, res) {
-    const { userId } = req.params;
-    const resultOrError = this.service.getFavoriteJobs(userId);
-    if ("error" in resultOrError) {
-      return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
-    }
-    return res.status(STATUS_CODE.OK).json(resultOrError);
+  getFavoriteJobs(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = this.service.getFavoriteJobs(userId);
+      if ("error" in resultOrError) {
+        return res.status(STATUS_CODE.BAD_REQUEST).json(CommonError.build("Bad request", STATUS_CODE.BAD_REQUEST));
+      }
+      return res.status(STATUS_CODE.OK).json(resultOrError);
+    });
   }
-  async getUserSearchHistory(req, res) {
-    const { userId } = req.params;
-    const resultOrError = await this.service.getUserSearchHistory(userId);
-    if ("error" in resultOrError) {
-      return res.status(resultOrError.statusCode).json(resultOrError);
-    }
-    return res.json(resultOrError);
+  getUserSearchHistory(req, res) {
+    return __async(this, null, function* () {
+      const { userId } = req.params;
+      const resultOrError = yield this.service.getUserSearchHistory(userId);
+      if ("error" in resultOrError) {
+        return res.status(resultOrError.statusCode).json(resultOrError);
+      }
+      return res.json(resultOrError);
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

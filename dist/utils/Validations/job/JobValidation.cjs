@@ -26,6 +26,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/utils/Validations/job/JobValidation.ts
 var JobValidation_exports = {};
@@ -60,22 +80,24 @@ var STATUS_CODE = {
 
 // src/utils/Validations/job/JobValidation.ts
 var JobValidation = class {
-  static async isValid(data) {
-    const validation = yup.object().shape({
-      position: yup.string().required(),
-      salary: yup.string().required(),
-      city: yup.string().required(),
-      website: yup.string().required(),
-      company: yup.string().required(),
-      description: yup.string().required(),
-      link: yup.string().required(),
-      technology: yup.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const validation = yup.object().shape({
+        position: yup.string().required(),
+        salary: yup.string().required(),
+        city: yup.string().required(),
+        website: yup.string().required(),
+        company: yup.string().required(),
+        description: yup.string().required(),
+        link: yup.string().required(),
+        technology: yup.string().required()
+      });
+      try {
+        yield validation.validate(data);
+      } catch (erro) {
+        return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
+      }
     });
-    try {
-      await validation.validate(data);
-    } catch (erro) {
-      return CommonError.build(erro.messages, STATUS_CODE.NOT_FOUND);
-    }
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

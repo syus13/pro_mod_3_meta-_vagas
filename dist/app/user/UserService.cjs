@@ -1,10 +1,27 @@
 "use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,6 +46,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/@mapbox/node-pre-gyp/lib/util/s3_setup.js
 var require_s3_setup = __commonJS({
@@ -11115,18 +11152,18 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var familyFromFilesystem = async () => {
+    var familyFromFilesystem = () => __async(exports, null, function* () {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
       }
       cachedFamilyFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
       } catch (e) {
       }
       return cachedFamilyFilesystem;
-    };
+    });
     var familyFromFilesystemSync = () => {
       if (cachedFamilyFilesystem !== void 0) {
         return cachedFamilyFilesystem;
@@ -11139,20 +11176,20 @@ var require_detect_libc = __commonJS({
       }
       return cachedFamilyFilesystem;
     };
-    var family = async () => {
+    var family = () => __async(exports, null, function* () {
       let family2 = null;
       if (isLinux()) {
-        family2 = await familyFromFilesystem();
+        family2 = yield familyFromFilesystem();
         if (!family2) {
           family2 = familyFromReport();
         }
         if (!family2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           family2 = familyFromCommand(out);
         }
       }
       return family2;
-    };
+    });
     var familySync = () => {
       let family2 = null;
       if (isLinux()) {
@@ -11167,15 +11204,17 @@ var require_detect_libc = __commonJS({
       }
       return family2;
     };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
+    var isNonGlibcLinux = () => __async(exports, null, function* () {
+      return isLinux() && (yield family()) !== GLIBC;
+    });
     var isNonGlibcLinuxSync = () => isLinux() && familySync() !== GLIBC;
-    var versionFromFilesystem = async () => {
+    var versionFromFilesystem = () => __async(exports, null, function* () {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
       }
       cachedVersionFilesystem = null;
       try {
-        const lddContent = await readFile(LDD_PATH);
+        const lddContent = yield readFile(LDD_PATH);
         const versionMatch = lddContent.match(RE_GLIBC_VERSION);
         if (versionMatch) {
           cachedVersionFilesystem = versionMatch[1];
@@ -11183,7 +11222,7 @@ var require_detect_libc = __commonJS({
       } catch (e) {
       }
       return cachedVersionFilesystem;
-    };
+    });
     var versionFromFilesystemSync = () => {
       if (cachedVersionFilesystem !== void 0) {
         return cachedVersionFilesystem;
@@ -11217,20 +11256,20 @@ var require_detect_libc = __commonJS({
       }
       return null;
     };
-    var version = async () => {
+    var version = () => __async(exports, null, function* () {
       let version2 = null;
       if (isLinux()) {
-        version2 = await versionFromFilesystem();
+        version2 = yield versionFromFilesystem();
         if (!version2) {
           version2 = versionFromReport();
         }
         if (!version2) {
-          const out = await safeCommand();
+          const out = yield safeCommand();
           version2 = versionFromCommand(out);
         }
       }
       return version2;
-    };
+    });
     var versionSync = () => {
       let version2 = null;
       if (isLinux()) {
@@ -14667,59 +14706,66 @@ var UserService = class {
   constructor(repository) {
     this.repository = repository;
   }
-  async create(data) {
-    const userAlreadyExists = await this.repository.findByEmail(data.email);
-    if (userAlreadyExists) {
-      return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
-    }
-    const user = {
-      ...data,
-      password: Crypt.encrypt(data.password)
-    };
-    return this.repository.create(user);
-  }
-  async update(id, data) {
-    try {
-      const userAlreadyExists = await this.repository.findById(id);
-      if (!userAlreadyExists) {
-        return CommonError.build(
-          userAlreadyExists.message,
-          STATUS_CODE.NOT_FOUND
-        );
+  create(data) {
+    return __async(this, null, function* () {
+      const userAlreadyExists = yield this.repository.findByEmail(data.email);
+      if (userAlreadyExists) {
+        return CommonError.build(userAlreadyExists.message, STATUS_CODE.CONFLICT);
       }
-      const updated = {
-        name: data.name,
-        password: Crypt.encrypt(data.password),
-        email: data.email
-      };
-      return await this.repository.update(id, updated);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+      const user = __spreadProps(__spreadValues({}, data), {
+        password: Crypt.encrypt(data.password)
+      });
+      return this.repository.create(user);
+    });
   }
-  async getFavoriteJobs(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  update(id, data) {
+    return __async(this, null, function* () {
+      try {
+        const userAlreadyExists = yield this.repository.findById(id);
+        if (!userAlreadyExists) {
+          return CommonError.build(
+            userAlreadyExists.message,
+            STATUS_CODE.NOT_FOUND
+          );
+        }
+        const updated = {
+          name: data.name,
+          password: Crypt.encrypt(data.password),
+          email: data.email
+        };
+        return yield this.repository.update(id, updated);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const favoriteJobs = await this.repository.getFavoriteJobs(user);
-      return favoriteJobs || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
   }
-  async getUserSearchHistory(userId) {
-    try {
-      const user = await this.repository.findById(userId);
-      if (!user) {
-        return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+  getFavoriteJobs(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const favoriteJobs = yield this.repository.getFavoriteJobs(user);
+        return favoriteJobs || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
-      const searchHistory = await this.repository.getUserSearchHistory(user);
-      return searchHistory || [];
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+    });
+  }
+  getUserSearchHistory(userId) {
+    return __async(this, null, function* () {
+      try {
+        const user = yield this.repository.findById(userId);
+        if (!user) {
+          return CommonError.build("User not found", STATUS_CODE.NOT_FOUND);
+        }
+        const searchHistory = yield this.repository.getUserSearchHistory(user);
+        return searchHistory || [];
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

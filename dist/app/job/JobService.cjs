@@ -16,6 +16,26 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/app/job/JobService.ts
 var JobService_exports = {};
@@ -54,29 +74,35 @@ var JobService = class {
     this.techSearchRepository = techSearchRepository;
     this.userRepository = userRepository;
   }
-  async create(data) {
-    try {
-      return await this.repository.create(data);
-    } catch (erro) {
-      return CommonError.build(
-        "Error registering the job",
-        STATUS_CODE.BAD_REQUEST
-      );
-    }
+  create(data) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.create(data);
+      } catch (erro) {
+        return CommonError.build(
+          "Error registering the job",
+          STATUS_CODE.BAD_REQUEST
+        );
+      }
+    });
   }
-  async searchJobs(filters, page, limit) {
-    try {
-      return await this.repository.searchJobs(filters, page, limit);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  searchJobs(filters, page, limit) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.searchJobs(filters, page, limit);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
-  async favoriteJob(userId, jobId) {
-    try {
-      return await this.repository.favoriteJob(userId, jobId);
-    } catch (erro) {
-      return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
-    }
+  favoriteJob(userId, jobId) {
+    return __async(this, null, function* () {
+      try {
+        return yield this.repository.favoriteJob(userId, jobId);
+      } catch (erro) {
+        return CommonError.build(erro.message, STATUS_CODE.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

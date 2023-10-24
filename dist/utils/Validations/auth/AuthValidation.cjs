@@ -26,6 +26,26 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // src/utils/Validations/auth/AuthValidation.ts
 var AuthValidation_exports = {};
@@ -49,21 +69,23 @@ var STATUS_CODE = {
 
 // src/utils/Validations/auth/AuthValidation.ts
 var AuthValidation = class {
-  static async isValid(data) {
-    const loginSchema = yup.object().shape({
-      email: yup.string().email().required(),
-      password: yup.string().required()
+  static isValid(data) {
+    return __async(this, null, function* () {
+      const loginSchema = yup.object().shape({
+        email: yup.string().email().required(),
+        password: yup.string().required()
+      });
+      try {
+        yield loginSchema.validate(data);
+        return { erro: false };
+      } catch (erro) {
+        return {
+          erro: true,
+          message: erro.message,
+          status: STATUS_CODE.BAD_REQUEST
+        };
+      }
     });
-    try {
-      await loginSchema.validate(data);
-      return { erro: false };
-    } catch (erro) {
-      return {
-        erro: true,
-        message: erro.message,
-        status: STATUS_CODE.BAD_REQUEST
-      };
-    }
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

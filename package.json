@@ -6,7 +6,8 @@
   "main": "src/index.ts",
   "scripts": {
     
-    "start": "tsx watch src/index.ts",
+    "start:dev": "tsx watch src/index.ts",
+    "start": "node src/index.ts",
    
     "test": "vitest"
   },

@@ -2,10 +2,15 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
+
+
+import { Database } from "./database/configDatabase";
+import { routes } from "./routes/index";
+
 dotenv.config();
 
-import { Database } from "./database/configDatabase.js";
-import { routes } from "./routes/index.js";
+
+
 
 Database.initialize();
 

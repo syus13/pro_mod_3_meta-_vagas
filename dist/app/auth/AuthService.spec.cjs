@@ -14395,9 +14395,9 @@ var require_path_is_absolute = __commonJS({
   }
 });
 
-// node_modules/rimraf/node_modules/glob/common.js
+// node_modules/glob/common.js
 var require_common = __commonJS({
-  "node_modules/rimraf/node_modules/glob/common.js"(exports) {
+  "node_modules/glob/common.js"(exports) {
     "use strict";
     exports.setopts = setopts;
     exports.ownProp = ownProp;
@@ -14590,9 +14590,9 @@ var require_common = __commonJS({
   }
 });
 
-// node_modules/rimraf/node_modules/glob/sync.js
+// node_modules/glob/sync.js
 var require_sync = __commonJS({
-  "node_modules/rimraf/node_modules/glob/sync.js"(exports, module2) {
+  "node_modules/glob/sync.js"(exports, module2) {
     "use strict";
     module2.exports = globSync;
     globSync.GlobSync = GlobSync;
@@ -15069,9 +15069,9 @@ var require_inflight = __commonJS({
   }
 });
 
-// node_modules/rimraf/node_modules/glob/glob.js
+// node_modules/glob/glob.js
 var require_glob = __commonJS({
-  "node_modules/rimraf/node_modules/glob/glob.js"(exports, module2) {
+  "node_modules/glob/glob.js"(exports, module2) {
     "use strict";
     module2.exports = glob;
     var rp = require_fs();
@@ -22947,9 +22947,9 @@ var require_TokenExpiredError = __commonJS({
   }
 });
 
-// node_modules/ms/index.js
+// node_modules/jsonwebtoken/node_modules/ms/index.js
 var require_ms = __commonJS({
-  "node_modules/ms/index.js"(exports, module2) {
+  "node_modules/jsonwebtoken/node_modules/ms/index.js"(exports, module2) {
     "use strict";
     var s = 1e3;
     var m2 = s * 60;

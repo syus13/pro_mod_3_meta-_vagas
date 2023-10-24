@@ -866,9 +866,9 @@ var require_TokenExpiredError = __commonJS({
   }
 });
 
-// node_modules/ms/index.js
+// node_modules/jsonwebtoken/node_modules/ms/index.js
 var require_ms = __commonJS({
-  "node_modules/ms/index.js"(exports, module2) {
+  "node_modules/jsonwebtoken/node_modules/ms/index.js"(exports, module2) {
     "use strict";
     var s = 1e3;
     var m = s * 60;

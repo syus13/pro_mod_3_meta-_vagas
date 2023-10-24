@@ -5,10 +5,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "tsup src/index.ts", 
+    "start": "tsx src/index.ts",
     "start:dev": "tsx watch src/index.ts",
     "build": "tsup src",
     "test": "vitest"
+  
+  
   },
   "keywords": [],
   "author": "",
@@ -33,8 +35,8 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "tsup": "^7.2.0",
-    "tsx": "^3.13.0", 
-    "typescript": "^4.4.3", 
+    "tsx": "^3.13.0",
+    "typescript": "^5.2.2",
     "vitest": "^0.34.5"
   }
-} 
+}

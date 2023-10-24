@@ -4,6 +4,11 @@
   "description": "",
   "type": "module",
   "main": "dist/index.cjs",
+  "binary": {
+    "module_name": "bcrypt",
+    "module_path": "./lib/binding/",
+    "host": "https://node-pre-gyp.example.com"
+  },
   "scripts": {
    
     "start": "tsx watch dist/index.cjs"   

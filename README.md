@@ -16,33 +16,37 @@ Bem-vindo à Meta Vagas API, a sua estação espacial para encontrar as melhores
 
 ### 👥 Usuários 👥
 
-- Registro de Usuário (POST): `http://localhost:3333/users`
-- Login do Usuário (POST): `http://localhost:3333/login`
-- Atualizar Perfil do Usuário (PUT): `http://localhost:3333/users/:id`
+- Registro de Usuário (POST): `http://localhost:3000/users`
+- Login do Usuário (POST): `http://localhost:3000/login`
+- Atualizar Perfil do Usuário (PUT): `http://localhost:3000/users/:id`
 
 ### 💼 Vagas 💼
 
-- Criar uma nova vaga (POST): `http://localhost:3333/jobs`
-- Buscar vagas vagas (GET): `http://localhost:3333/jobs/search`
-- Marcar vaga como favorita (POST): `http://localhost:3333/jobs/favorite/:id`
+- Criar uma nova vaga (POST): `http://localhost:3000/jobs`
+- Buscar vagas vagas (GET): `http://localhost:3000/jobs/search`
+- Marcar vaga como favorita (POST): `http://localhost:3000/jobs/favorite/:id`
 
 ### 💻 Pesquisa de Tecnologia 💻 
 
-- Registrar pesquisa de tecnologia (POST): `http://localhost:3333/techSearch/register`
-- Obter as principais tecnologias pesquisadas (GET): `http://localhost:3333/techSearch/topTechnologies`
-- Obter as principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3333/techSearch/topCitiesForMostSearchedTech`
-- Pesquisar tecnologia e cidade (GET): `http://localhost:3333/techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>`
-- Obter resultados de pesquisa de tecnologia (GET): `http://localhost:3333/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>`
+- Registrar pesquisa de tecnologia (POST): `http://localhost:3000/techSearch/register`
+- Obter as principais tecnologias pesquisadas (GET): `http://localhost:3000/techSearch/topTechnologies`
+- Obter as principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3000/techSearch/topCitiesForMostSearchedTech`
+- Pesquisar tecnologia e cidade (GET): `http://localhost:3000/techSearch/search?technology=<nome da tecnologia>&city=<nome da cidade>`
+- Obter resultados de pesquisa de tecnologia (GET): `http://localhost:3000/techSearch/searchTech?technology=<nome da tecnologia>&city=<nome da cidade>&page=<número da página>&perPage=<itens por página>`
 
 
 ### 🏙️ Pesquisa de Cidade 🏙️
 
-- Obter as 5 principais cidades (GET): `http://localhost:3333/citySearch/top5`
-- Obter as 5 principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3333/citySearch/top5cityAndTechnonogy`
+- Obter as 5 principais cidades (GET): `http://localhost:3000/citySearch/top5`
+- Obter as 5 principais cidades para a tecnologia mais pesquisada (GET): `http://localhost:3000/citySearch/top5cityAndTechnonogy`
+
+### 🕵️ Histórico de Pesquisa do Usuário 🕵️
+
+Obter histórico de pesquisa do usuário (GET): http://localhost:3000/userSearchHistory/:userId/history
 
 ## 📖 Paginação 📖
 
-A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta `page` e `perPage` para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para `http://localhost:3333/jobs/filter?page=2&perPage=10`. Isso retornaria os itens 11-20 dos resultados da pesquisa.
+A API suporta paginação nas rotas que retornam múltiplos itens. Você pode usar os parâmetros de consulta `page` e `perPage` para controlar quais itens são retornados. Por exemplo, se você quiser obter a segunda página de resultados e tiver 10 itens por página, você faria uma solicitação GET para `http://localhost:3000/jobs/filter?page=2&perPage=10`. Isso retornaria os itens 11-20 dos resultados da pesquisa.
 
 ## 📦 Dependências 📦
 
